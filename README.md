@@ -1,7 +1,7 @@
 DS4A team 67
 ==============================
 
-Sistema de monitoreo, detección, identificación de alertas tempranas y análisis para prevenir la deserción que permita personalizar las estrategias de permanencia de cada uno de los estudiantes en un tiempo oportuno, además de clasificar en un espectro el riesgo que tienen niños, niñas y adolescentes de abandonar la escuela.
+Sistema de monitoreo, detección, identificación de alertas tempranas y análisis para prevenir la deserción escolar. El modelo permite personalizar las estrategias de permanencia de cada uno de los estudiantes en un tiempo oportuno, además de clasificar en un espectro el riesgo que tienen niños, niñas y adolescentes de abandonar la escuela.
 
 Project Organization
 ------------
@@ -46,8 +46,7 @@ Project Organization
     │   │
     │   └── visualization  <- Scripts to create exploratory and results oriented visualizations
     │       └── visualize.py
-    │
-    └── tox.ini            <- tox file with settings for running tox; see tox.readthedocs.io
+    └── 
 
 
 --------
