@@ -5,7 +5,7 @@ from dash.dependencies import Input, Output, State
 
 #Recall app
 from app import app
-from lib import maps, statistics, clustering, efficiency
+from library import maps, statistics, clustering, efficiency
 
 
 

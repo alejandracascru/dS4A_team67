@@ -10,7 +10,7 @@ from app import app
 ###########################################################
 
 # LOAD THE DIFFERENT FILES
-from lib import title, tab_bar
+from library import title, tab_bar
 
 # PLACE THE COMPONENTS IN THE LAYOUT
 
