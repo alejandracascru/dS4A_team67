@@ -31,8 +31,8 @@ df_mun = def_data.runQuery("""select * from desertion_by_municip;""")
 
 dropdown_variables = dcc.Dropdown(id='dropdown_var', options=[
         {'label': i, 'value': i} for i in df_vars['name'].unique()
-    ], multi=True, placeholder='Variable...'),
+    ], multi=True, placeholder='Variable...', style={'width':'60%'}),
 
 dropdown_mun = dcc.Dropdown(id='dropdown_mun', options=[
         {'label': i, 'value': i} for i in df_mun['name_dept'].unique()
-    ], multi=True, placeholder='Departamento...'),
+    ], multi=False, placeholder='Departamento...', style={'width':'60%'}, value='Antioquia'),
