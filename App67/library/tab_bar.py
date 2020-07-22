@@ -5,7 +5,7 @@ from dash.dependencies import Input, Output, State
 
 #Recall app
 from app import app
-from library import maps, statistics, clustering, efficiency
+from library import maps, statistics, clustering, benchmarking
 
 
 
@@ -17,7 +17,7 @@ tab_bar = html.Div(className="tab-bar",
                 dbc.Tab(label="Mapas", tab_id="tab-2"),
                 dbc.Tab(label="Estadísticas", tab_id="tab-3"),
                 dbc.Tab(label="Clustering", tab_id="tab-4"),
-                dbc.Tab(label="Eficiencia", tab_id="tab-5"),
+                dbc.Tab(label="Benchmarking", tab_id="tab-5"),
             ],
             id="tabs",
             active_tab="tab-1",
@@ -38,5 +38,5 @@ def switch_tab(at):
     elif at == "tab-4":
         return clustering.clustering
     elif at == "tab-5":
-        return efficiency.efficiency
+        return benchmarking.benchmarking
     return html.P("This shouldn't ever be displayed...")
