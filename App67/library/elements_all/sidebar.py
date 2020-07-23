@@ -2,6 +2,7 @@
 import dash
 import dash_html_components as html
 import dash_bootstrap_components as dbc
+import dash_core_components as dcc
 from dash.dependencies import Input, Output, State
 
 # Recall app
@@ -41,8 +42,10 @@ var_groups = list(df_vars['group_id'].unique())
 cardBody = []
 for gr in var_groups:
     tempCardBody = []
-    for var in df_vars[df_vars['group_id'] == gr]['label']:
-        tempCardBody.append(dbc.CardBody(var))
+    options = []
+    for var_id in df_vars[df_vars['group_id'] == gr]['var_id']:
+        options.append( {'label': '  ' + list(df_vars[df_vars['var_id']==str(var_id)]['label'])[0], 'value': str(var_id)} )
+    tempCardBody.append(dbc.CardBody(dcc.Checklist(options=options,style={"font-size": "small"}),style={'height': '200px', 'overflowY': 'auto'}))
     cardBody.insert(gr, tempCardBody)
 
 def make_item(i):
@@ -50,13 +53,13 @@ def make_item(i):
     return dbc.Card(
         [
             dbc.CardHeader(
-                html.H2(
+                html.H6(
                     dbc.Button(
                         list(df_vars[df_vars['group_id']==i]['group'].unique())[0],
                         color="link",
-                        id=f"group-{i}-toggle",
+                        id=f"group-{i}-toggle", size="sm" #,block=True
                     )
-                )
+                ),style={"height":"30px","padding": "0","margin": "0"}
             ),
             dbc.Collapse(
                 cardBody[i-1],
@@ -106,10 +109,27 @@ def toggle_accordion(*args):
 # ------------------------------
 # SIDEBAR LAYOUT
 # ------------------------------
+area_drop = dcc.Dropdown(
+    options=[
+        {'label': 'Andina', 'value': 'Andina'},
+        {'label': 'Amazónica', 'value': 'Amazónica'},
+        {'label': 'Caribe', 'value': 'Caribe'},
+        {'label': 'Orinoquía', 'value': 'Orinoquía'},
+        {'label': 'Pacífica', 'value': 'Pacífica'}
+    ],
+    value='Andina'
+)
+
+# ------------------------------
+# SIDEBAR LAYOUT
+# ------------------------------
 
 sidebar = html.Div(
     [
-        html.H6("Variables", className="display-4"),
+        dbc.Button("Run DEA", block=True, color='primary'), #style={"background-color":"#011f4b"}
+        html.P('Instrucciones?'),
+        html.Hr(),
+        area_drop,
         html.Hr(),
         accordion,
     ],

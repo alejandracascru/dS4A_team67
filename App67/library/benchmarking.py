@@ -107,6 +107,7 @@ EF_Map.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
 
 # ------------------------------
 # 4. Ranking
+# https://dash.plotly.com/datatable
 # ------------------------------
 ranking_table = dt.DataTable(
     id='table',
@@ -130,6 +131,7 @@ group_table = dt.DataTable(
 # ------------------------------
 
 slack_graph = px.histogram(df_dropout_efficiency, x="nodropouts", height=200)
+slack_graph.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
 
 # ------------------------------
 # 7. Layout
