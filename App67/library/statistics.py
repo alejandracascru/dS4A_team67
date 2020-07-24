@@ -10,6 +10,7 @@ from dash.dependencies import Input, Output, State
 import plotly.graph_objects as go
 
 from app import app
+from library.elements_all import dropdown
 
 import plotly.express as px
 from plotly.subplots import make_subplots
@@ -52,7 +53,31 @@ def get_cobertura_variables(df_in, year, in_mun_code):
         'me_cobertura_neta_secundaria',
     ]].to_numpy()
     cob_perc = y_plot_2[0]
-    return value_cobertura, cob_perc
+    return cob_perc
+
+
+def get_scatter_df(df_in, var1, var2, year):
+    df_year = df_in[df_in['year_cohort'] == year]
+    df_final = df_year[[var1, var2, 'name_dept', 'code_dept', 'name_municip', 'code_municip', 'region']]
+
+    var1 = 'desertion_perc'
+    var2 = 'me_tasa_matriculacion_5_16'
+    scatter_df = get_scatter_df(df_all, var1, var2, 2019)
+
+    region_to_number = {
+        'Andina': 1,
+        'Caribe': 2,
+        'Amazonica': 3,
+        'Pacifica': 4,
+        'Orinoquia': 5,
+    }
+
+    def change_to_code(region):
+        return region_to_number[region]
+
+    scatter_df['reg_code'] = scatter_df['region'].apply(change_to_code)
+
+    return scatter_df
 
 
 def make_donut_desertion_fig(name_municipio, name_depto, year, label_desercion, derc_perc):
@@ -67,16 +92,16 @@ def make_donut_desertion_fig(name_municipio, name_depto, year, label_desercion, 
     return fig
 
 
-def make_bar_cobertura_fig(name_municipio, name_depto, cob_perc, value_cobertura):
+def make_bar_cobertura_fig(name_municipio, name_depto, cob_perc):
     labels = ['Transición', 'Primaria', 'Media', 'Secundaria']
     fig = go.Figure(data=[go.Bar(x=labels,
                                  y=cob_perc,
                                  )])
-    fig.update_layout(title_text="Cobertura Total Población Escolar: " + value_cobertura)
+    fig.update_layout(title_text="Cobertura Total Población Escolar: " )
     return fig
 
 
-def figure_desertion_year(df_all, selected_code, name_municipio):
+def figure_desertion_year(df_all, selected_code):
     df_mun = df_all[df_all['code_municip'] == selected_code]
     result_fig = go.Figure(data=go.Scatter(x=df_mun['year_cohort'],
                                            y=df_mun['desertion_perc']
@@ -93,9 +118,27 @@ def figure_desertion_year(df_all, selected_code, name_municipio):
     return result_fig
 
 
+def make_correlation_fig(scatter_df):
+    figure_t = go.Figure(data=go.Scatter(
+        x=scatter_df['desertion_perc'],
+        y=scatter_df['me_tasa_matriculacion_5_16'],
+        text=scatter_df['region'] + ' - ' + scatter_df['name_dept'] + ' - ' + scatter_df['name_municip'],
+        mode='markers',
+            marker=dict(
+                size=16,
+                color=scatter_df['reg_code'],  # set color equal to a variable
+                colorscale='Jet',  # one of plotly colorscales
+                showscale=False
+            )
+            ))
+    figure_t.update_layout(title='Population of USA States')
+    return figure_t
+
+
 ##### Call Figures
 
 selected_code = 5001
+
 selected_year = 2019
 
 df_mun = df_all[df_all['code_municip'] == selected_code]
@@ -108,11 +151,16 @@ label_desercion, derc_perc = get_desercion_variables(
     in_mun_code=selected_code,
 )
 
-value_cobertura, cob_perc = get_cobertura_variables(
+cob_perc = get_cobertura_variables(
     df_in=df_all,
     year=selected_year,
     in_mun_code=selected_code,
 )
+
+# var1 = 'desertion_perc'
+# var2 = 'me_tasa_matriculacion_5_16'
+# scatter_df = get_scatter_df(df_all, var1, var2, 2019)
+# Corr_fig = make_correlation_fig(scatter_df)
 
 PieFig = make_donut_desertion_fig(
     name_municipio=name_municipio,
@@ -126,13 +174,13 @@ BarFig = make_bar_cobertura_fig(
     name_municipio=name_municipio,
     name_depto=name_depto,
     cob_perc=cob_perc,
-    value_cobertura=value_cobertura
+    # value_cobertura=value_cobertura
 )
 
 Years_fig = figure_desertion_year(
     df_all=df_all,
-    selected_code=selected_code,
-    name_municipio=name_municipio)
+    selected_code=selected_code
+)
 
 ##############################
 # Layout
@@ -157,7 +205,7 @@ explore_municipio = html.Div(
         dbc.Row(
             [
                 dbc.Col(
-                    html.Div("Dropdown Select Municipio"), width=2
+                    html.Div(dropdown.dropdown_year), width=2
                 ),
                 dbc.Col(
                     dcc.Graph(figure=PieFig, id='Pie_d'), width=3
@@ -249,3 +297,6 @@ def toggle_collapse(n, is_open):
     if n:
         return not is_open
     return is_open
+
+
+

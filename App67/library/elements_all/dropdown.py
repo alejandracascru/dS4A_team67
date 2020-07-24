@@ -10,6 +10,8 @@ from library import def_data
 
 df_vars = def_data.runQuery("""select * from public.var_definition;""")
 df_mun = def_data.runQuery("""select * from desertion_by_municip;""")
+df_master = def_data.runQuery("""select * from master_table_by_municipio;""")
+
 
 # dropdown = dbc.DropdownMenu(
 #     id='drop_down',
@@ -36,3 +38,7 @@ dropdown_variables = dcc.Dropdown(id='dropdown_var', options=[
 dropdown_mun = dcc.Dropdown(id='dropdown_mun', options=[
         {'label': i, 'value': i} for i in df_mun['name_dept'].unique()
     ], multi=False, placeholder='Departamento...', style={'width':'60%'}, value='Antioquia'),
+
+dropdown_year = dcc.Dropdown(id='dropdown_year', options=[
+        {'label': i, 'value': i} for i in df_master['year_cohort'].unique()
+    ], multi=False, placeholder='Year...', style={'width':'60%'}, value='2019'),
