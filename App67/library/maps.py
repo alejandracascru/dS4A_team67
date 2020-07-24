@@ -43,9 +43,6 @@ df_desertion_dept = def_data.runQuery(
 # Load map data
 #############################
 
-df = pd.read_csv("data/VariablesCarlos.csv",error_bad_lines=False,encoding = "ISO-8859-1", sep = '\t')
-df = df.drop(['Unnamed: 0'], axis=1)
-
 with open('data/MGN_MPIO_POLITICO.json') as geo:
     MUN_json = json.loads(geo.read())
 
