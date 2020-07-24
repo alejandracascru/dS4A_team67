@@ -14,6 +14,9 @@ from library import def_data
 # 1. Sidebar style
 # 2. SQL queries
 # 3. Accordion
+# 4. Area drop down
+# 5. Sidebar Layout
+# 6. Input and Area arrays
 # ------------------------------
 
 # ------------------------------
@@ -45,7 +48,16 @@ for gr in var_groups:
     options = []
     for var_id in df_vars[df_vars['group_id'] == gr]['var_id']:
         options.append( {'label': '  ' + list(df_vars[df_vars['var_id']==str(var_id)]['label'])[0], 'value': str(var_id)} )
-    tempCardBody.append(dbc.CardBody(dcc.Checklist(options=options,style={"font-size": "small"}),style={'height': '200px', 'overflowY': 'auto'}))
+    tempCardBody.append(
+        dbc.CardBody(
+            [dcc.Checklist(
+                id=f"bench_checklist_{gr}",
+                options=options,
+                style={"font-size": "small"}),
+            html.Div(id=f"bench_checklist_{gr}_output", style={'display':'none'})],
+            style={'height': '200px', 'overflowY': 'auto'}
+        )
+    )
     cardBody.insert(gr, tempCardBody)
 
 def make_item(i):
@@ -107,26 +119,54 @@ def toggle_accordion(*args):
 
 
 # ------------------------------
-# SIDEBAR LAYOUT
+# 4. Area drop down
 # ------------------------------
-area_drop = dcc.Dropdown(
+area_drop = html.Div([
+    dcc.Dropdown(
+    id='dropdown',
     options=[
         {'label': 'Andina', 'value': 'Andina'},
-        {'label': 'Amazónica', 'value': 'Amazónica'},
+        {'label': 'Amazónica', 'value': 'Amazonica'},
         {'label': 'Caribe', 'value': 'Caribe'},
-        {'label': 'Orinoquía', 'value': 'Orinoquía'},
-        {'label': 'Pacífica', 'value': 'Pacífica'}
+        {'label': 'Orinoquía', 'value': 'Orinoquia'},
+        {'label': 'Pacífica', 'value': 'Pacifica'}
     ],
-    value='Andina'
-)
+    value='Andina'),
+    html.Div(id='area_drop_output', style={'display':'none'}),
+])
 
 # ------------------------------
-# SIDEBAR LAYOUT
+# 6. Input and Area arrays
 # ------------------------------
+input_array = []
+area_array = ''
 
+# 6.1 Input and Area callbacks
+# ------------------------------
+@app.callback(Output('area_drop_output', 'children'),
+              [Input('dropdown', 'value')])
+def update_output_1kjhskjh(value):
+    global area_array
+    area_array = value
+    return value
+
+@app.callback(Output('bench_checklist_2_output', 'children'),
+              [Input(f'bench_checklist_{i}', 'value') for i in var_groups])
+def update_output_3(*args):
+    global input_array
+    active_vars = []
+    for check_vars in args:
+        if check_vars is not None:
+            active_vars = active_vars + check_vars
+    input_array = active_vars
+    return 'Fabio A. Lagos'
+
+# ------------------------------
+# 5. SIDEBAR LAYOUT
+# ------------------------------
 sidebar = html.Div(
     [
-        dbc.Button("Run DEA", block=True, color='primary'), #style={"background-color":"#011f4b"}
+        dbc.Button("Run DEA", id='DEA-button', block=True, color='primary'), #style={"background-color":"#011f4b"}
         html.P('Instrucciones?'),
         html.Hr(),
         area_drop,
