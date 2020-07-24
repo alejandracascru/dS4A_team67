@@ -119,20 +119,28 @@ def figure_desertion_year(df_all, selected_code):
     return result_fig
 
 
-def figure_correlation(scatter_df):
-    result_fig = go.Figure(data=go.Scatter(x=scatter_df['desertion_perc'],
-                                    y=scatter_df['me_tasa_matriculacion_5_16'],
+def figure_correlation(scatter_df, var1, var2, filter_type='region'):
+    result_fig = go.Figure()
 
-                                    text=scatter_df['region'] + ' - ' + scatter_df['name_dept'] + ' - ' + scatter_df[
-                                        'name_municip'],
-                                    mode='markers',
-                                    marker=dict(
-                                        size=16,
-                                        color=scatter_df['reg_code'],  # set color equal to a variable
-                                        colorscale='Jet',  # one of plotly colorscales
-                                        showscale=False
-                                    )
-                                    ))
+    if filter_type == 'region':
+        filter_selection = 'reg_code'
+    else:
+        filter_selection = 'code_dept'
+
+    regions = scatter_df[filter_selection].unique()
+
+    for r in regions:
+        temp_df = scatter_df[scatter_df[filter_selection] == r]
+        result_fig.add_trace(go.Scatter(
+            x=temp_df[var1],
+            y=temp_df[var2],
+            text=temp_df['region'] + ' - ' + temp_df['name_dept'] + ' - ' + temp_df['name_municip'],
+            name=str(r),
+            mode='markers',
+            marker=dict(
+                size=16,
+            )
+        ))
 
     result_fig.update_layout(title='Correlation Selected Variables')
     return result_fig
@@ -190,7 +198,10 @@ df_scatter = get_correlation_df(
 )
 
 Corr_fig = figure_correlation(
-    scatter_df=df_scatter
+    scatter_df=df_scatter,
+    var1=var1_in,
+    var2=var2_in,
+    filter_type='region'
 )
 
 ##############################
