@@ -9,6 +9,8 @@ from dash.dependencies import Input, Output, State
 
 import plotly.graph_objects as go
 
+from library.elements_all import dropdown
+
 from app import app
 
 import plotly.express as px
@@ -55,7 +57,31 @@ def get_cobertura_variables(df_in, year, in_mun_code):
     return value_cobertura, cob_perc
 
 
-def make_donut_desertion_fig(name_municipio, name_depto, year, label_desercion, derc_perc):
+def get_correlation_df(df_in, var1, var2, year):
+    df_year = df_in[df_in['year_cohort'] == year]
+    df_out = df_year[[var1, var2, 'name_dept', 'code_dept', 'name_municip', 'code_municip', 'region']]
+
+    region_to_number = {
+        'Andina':1,
+        'Caribe':2,
+        'Amazonica':3,
+        'Pacifica':4,
+        'Orinoquia':5,
+    }
+
+    def change_to_code(region):
+        return region_to_number[region]
+
+    new_code = df_out['region'].apply(change_to_code)
+    df_out = df_out.assign(reg_code=new_code)
+    return df_out
+
+
+##############################
+# Figures
+##############################
+
+def make_donut_desertion_fig(label_desercion, derc_perc):
     labels = ['Transición', 'Primaria', 'Media', 'Secundaria']
     fig = go.Figure(data=[go.Pie(labels=labels,
                                  values=derc_perc,
@@ -67,7 +93,7 @@ def make_donut_desertion_fig(name_municipio, name_depto, year, label_desercion, 
     return fig
 
 
-def make_bar_cobertura_fig(name_municipio, name_depto, cob_perc, value_cobertura):
+def make_bar_cobertura_fig(value_cobertura, cob_perc):
     labels = ['Transición', 'Primaria', 'Media', 'Secundaria']
     fig = go.Figure(data=[go.Bar(x=labels,
                                  y=cob_perc,
@@ -76,7 +102,7 @@ def make_bar_cobertura_fig(name_municipio, name_depto, cob_perc, value_cobertura
     return fig
 
 
-def figure_desertion_year(df_all, selected_code, name_municipio):
+def figure_desertion_year(df_all, selected_code):
     df_mun = df_all[df_all['code_municip'] == selected_code]
     result_fig = go.Figure(data=go.Scatter(x=df_mun['year_cohort'],
                                            y=df_mun['desertion_perc']
@@ -93,8 +119,28 @@ def figure_desertion_year(df_all, selected_code, name_municipio):
     return result_fig
 
 
-##### Call Figures
+def figure_correlation(scatter_df):
+    result_fig = go.Figure(data=go.Scatter(x=scatter_df['desertion_perc'],
+                                    y=scatter_df['me_tasa_matriculacion_5_16'],
 
+                                    text=scatter_df['region'] + ' - ' + scatter_df['name_dept'] + ' - ' + scatter_df[
+                                        'name_municip'],
+                                    mode='markers',
+                                    marker=dict(
+                                        size=16,
+                                        color=scatter_df['reg_code'],  # set color equal to a variable
+                                        colorscale='Jet',  # one of plotly colorscales
+                                        showscale=False
+                                    )
+                                    ))
+
+    result_fig.update_layout(title='Correlation Selected Variables')
+    return result_fig
+
+
+##############################
+# Call Figures
+##############################
 selected_code = 5001
 selected_year = 2019
 
@@ -102,37 +148,50 @@ df_mun = df_all[df_all['code_municip'] == selected_code]
 name_municipio = df_mun.iloc[[0]]['name_dept'].to_numpy()
 name_depto = df_mun.iloc[[0]]['name_municip'].to_numpy()
 
-label_desercion, derc_perc = get_desercion_variables(
-    df_in=df_all,
-    year=selected_year,
-    in_mun_code=selected_code,
-)
+var1_in = 'desertion_perc'
+var2_in = 'me_tasa_matriculacion_5_16'
 
-value_cobertura, cob_perc = get_cobertura_variables(
+# Pie Figure
+label_desercion_in, derc_perc_in = get_desercion_variables(
     df_in=df_all,
     year=selected_year,
     in_mun_code=selected_code,
 )
 
 PieFig = make_donut_desertion_fig(
-    name_municipio=name_municipio,
-    name_depto=name_depto,
+    label_desercion=label_desercion_in,
+    derc_perc=derc_perc_in,
+)
+
+# Cobertura Figure
+value_cobertura_in, cob_perc_in = get_cobertura_variables(
+    df_in=df_all,
     year=selected_year,
-    label_desercion=label_desercion,
-    derc_perc=derc_perc,
+    in_mun_code=selected_code,
 )
 
 BarFig = make_bar_cobertura_fig(
-    name_municipio=name_municipio,
-    name_depto=name_depto,
-    cob_perc=cob_perc,
-    value_cobertura=value_cobertura
+    cob_perc=cob_perc_in,
+    value_cobertura=value_cobertura_in
 )
 
+# Years figure
 Years_fig = figure_desertion_year(
     df_all=df_all,
-    selected_code=selected_code,
-    name_municipio=name_municipio)
+    selected_code=selected_code
+)
+
+# Correlation Figure
+df_scatter = get_correlation_df(
+    df_in=df_all,
+    var1=var1_in,
+    var2=var2_in,
+    year=selected_year
+)
+
+Corr_fig = figure_correlation(
+    scatter_df=df_scatter
+)
 
 ##############################
 # Layout
@@ -198,7 +257,7 @@ explore_correlation = html.Div(
                     html.Div("Dropdown Select Variables"), width=1
                 ),
                 dbc.Col(
-                    dcc.Graph(figure=Years_fig, id='Years2'), width=10
+                    dcc.Graph(figure=Corr_fig, id='Years2'), width=10
                 ),
             ],
             align="center",
