@@ -119,31 +119,31 @@ def figure_desertion_year(df_all, selected_code):
     return result_fig
 
 
-def figure_correlation(scatter_df, var1, var2, filter_type='region'):
-    result_fig = go.Figure()
-
-    if filter_type == 'region':
-        filter_selection = 'reg_code'
-    else:
-        filter_selection = 'code_dept'
-
-    regions = scatter_df[filter_selection].unique()
-
-    for r in regions:
-        temp_df = scatter_df[scatter_df[filter_selection] == r]
-        result_fig.add_trace(go.Scatter(
-            x=temp_df[var1],
-            y=temp_df[var2],
-            text=temp_df['region'] + ' - ' + temp_df['name_dept'] + ' - ' + temp_df['name_municip'],
-            name=str(r),
-            mode='markers',
-            marker=dict(
-                size=16,
-            )
-        ))
-
-    result_fig.update_layout(title='Correlation Selected Variables')
-    return result_fig
+# def figure_correlation(scatter_df, var1, var2, filter_type='region'):
+#     result_fig = go.Figure()
+#
+#     if filter_type == 'region':
+#         filter_selection = 'reg_code'
+#     else:
+#         filter_selection = 'code_dept'
+#
+#     regions = scatter_df[filter_selection].unique()
+#
+#     for r in regions:
+#         temp_df = scatter_df[scatter_df[filter_selection] == r]
+#         result_fig.add_trace(go.Scatter(
+#             x=temp_df[var1],
+#             y=temp_df[var2],
+#             text=temp_df['region'] + ' - ' + temp_df['name_dept'] + ' - ' + temp_df['name_municip'],
+#             name=str(r),
+#             mode='markers',
+#             marker=dict(
+#                 size=16,
+#             )
+#         ))
+#
+#     result_fig.update_layout(title='Correlation Selected Variables')
+#     return result_fig
 
 
 ##############################
@@ -190,18 +190,31 @@ Years_fig = figure_desertion_year(
 )
 
 # Correlation Figure
-df_scatter = get_correlation_df(
-    df_in=df_all,
-    var1=var1_in,
-    var2=var2_in,
-    year=selected_year
-)
+# df_scatter = get_correlation_df(
+#     df_in=df_all,
+#     var1=var1_in,
+#     var2=var2_in,
+#     year=selected_year
+# )
+#
+# Corr_fig = figure_correlation(
+#     scatter_df=df_scatter,
+#     var1=var1_in,
+#     var2=var2_in,
+#     filter_type='region'
+# )
 
-Corr_fig = figure_correlation(
-    scatter_df=df_scatter,
-    var1=var1_in,
-    var2=var2_in,
-    filter_type='region'
+##############################
+# Dropdowns
+##############################
+
+dropdown_region = dcc.Dropdown(
+    id='demo-dropdown',
+    options=[
+        {'label': 'Regiones', 'value': 'region'},
+        {'label': 'Departamentos', 'value': 'depto'}
+    ],
+    value='region'
 )
 
 ##############################
@@ -227,7 +240,7 @@ explore_municipio = html.Div(
         dbc.Row(
             [
                 dbc.Col(
-                    html.Div("Dropdown Select Municipio"), width=2
+                    html.Div('Dropdown'), width=2
                 ),
                 dbc.Col(
                     dcc.Graph(figure=PieFig, id='Pie_d'), width=3
@@ -259,16 +272,30 @@ explore_correlation = html.Div(
                 ),
             ]
         ),
+
+        dbc.Row([
+            dbc.Col(
+                html.Div(""), width=2
+            ),
+            dbc.Col(
+                html.Div("Seleccione Filtro"), width=3
+            ),
+            dbc.Col(
+                html.Div(dropdown_region), width=5
+            ),
+        ]
+        ),
+
         dbc.Row(
             [
                 dbc.Col(
                     html.Div(""), width=1
                 ),
                 dbc.Col(
-                    html.Div("Dropdown Select Variables"), width=1
+                    html.Div(""), width=1
                 ),
                 dbc.Col(
-                    dcc.Graph(figure=Corr_fig, id='Years2'), width=10
+                    dcc.Graph(id='Corr_fig'), width=12
                 ),
             ],
             align="center",
@@ -321,4 +348,44 @@ def toggle_collapse(n, is_open):
     return is_open
 
 
+
+@app.callback(
+    Output('Corr_fig', 'figure'),
+    [Input('demo-dropdown', 'value')])
+def figure_correlation(value):
+
+    var1_in = 'desertion_perc'
+    var2_in = 'me_tasa_matriculacion_5_16'
+
+    scatter_df = get_correlation_df(
+        df_in=df_all,
+        var1=var1_in,
+        var2=var2_in,
+        year=selected_year
+    )
+
+    result_fig = go.Figure()
+
+    if value == 'region':
+        filter_selection = 'reg_code'
+    else:
+        filter_selection = 'code_dept'
+
+    regions = scatter_df[filter_selection].unique()
+
+    for r in regions:
+        temp_df = scatter_df[scatter_df[filter_selection] == r]
+        result_fig.add_trace(go.Scatter(
+            x=temp_df[var1_in],
+            y=temp_df[var2_in],
+            text=temp_df['region'] + ' - ' + temp_df['name_dept'] + ' - ' + temp_df['name_municip'],
+            name=str(r),
+            mode='markers',
+            marker=dict(
+                size=16,
+            )
+        ))
+
+    result_fig.update_layout(title='Correlation Selected Variables')
+    return result_fig
 
