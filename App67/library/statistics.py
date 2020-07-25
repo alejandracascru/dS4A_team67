@@ -9,8 +9,7 @@ from dash.dependencies import Input, Output, State
 
 import plotly.graph_objects as go
 
-from library.elements_all import dropdown
-
+from library.elements_all import sidebar_statistics
 from app import app
 
 import plotly.express as px
@@ -307,9 +306,10 @@ explore_correlation = html.Div(
 dbc.Col(html.Div("One of three columns"), width=3),
 statistics = html.Div(
     [
-        dbc.Row(
+        sidebar_statistics.sidebar,
+        dbc.Row(html.Div(
             explore_correlation
-        ),
+        ),style={'position':'fixed','left':'17rem'}),
 
         dbc.Row(dbc.Col(
             html.Div("")
