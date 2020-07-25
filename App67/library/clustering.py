@@ -6,7 +6,7 @@ from dash.dependencies import Input, Output, State
 import dash_core_components as dcc
 # Recall app
 from app import app
-from library.elements_all import sidebar
+from library.elements_all import sidebar_benchmarking
 from library.elements_all import dropdown
 from library import def_data
 
@@ -21,7 +21,7 @@ df_desertion_dept = def_data.runQuery(
 clustering = dbc.Row(
     [
         dbc.Col(html.Div([
-            sidebar.sidebar,
+            sidebar_benchmarking.sidebar,
         ])),
         dbc.Col(html.Div(dropdown.dropdown_mun)),
         dbc.Col(html.Div(dcc.Graph(id='chart'))),

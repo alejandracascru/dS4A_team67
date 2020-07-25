@@ -7,15 +7,14 @@ from dash.dependencies import Input, Output, State
 
 # Recall app
 from app import app
-from library import def_data
-from library import maps
+from library import def_data, maps
 
 # ------------------------------
 # CONTENTS
 # 1. Sidebar style
 # 2. SQL queries
 # 3. Accordion
-# 4. Area drop down
+# 4. Department drop down
 # 5. Sidebar Layout
 # 6. Input and Area arrays
 # ------------------------------
@@ -48,12 +47,13 @@ for gr in var_groups:
     tempCardBody = []
     options = []
     for var_id in df_vars[df_vars['group_id'] == gr]['var_id']:
-        options.append( {'label': '  ' + list(df_vars[df_vars['var_id']==str(var_id)]['label'])[0], 'value': str(var_id)} )
+        options.append(html.Label(list(df_vars[df_vars['var_id']==str(var_id)]['label'])[0], id = 'mapLabel-'+ str(var_id) ))
+        options.append(html.Br())
     tempCardBody.append(
         dbc.CardBody(
-            [dcc.Checklist(
+            [html.Div(
                 id=f"maps_checklist_{gr}",
-                options=options,
+                children=options,
                 style={"font-size": "small"}),
             html.Div(id=f"maps_checklist_{gr}_output", style={'display':'none'})],
             style={'height': '200px', 'overflowY': 'auto'}
@@ -99,7 +99,7 @@ accordion = html.Div(
 )
 def toggle_accordion(*args):
     ctx = dash.callback_context
-    print("Prueba!!!!")
+
     n = args[0:int(len(args)/2)]
     n = list(n)
     is_open = args[int(len(args)/2):]
@@ -122,18 +122,16 @@ def toggle_accordion(*args):
 # ------------------------------
 # 4. Area drop down
 # ------------------------------
-area_drop = html.Div([
+df_depto = def_data.runQuery("""
+    select distinct code_dept, name_dept 
+    from master_table_by_municipio  
+    where year_cohort = 2019;""")
+
+depto_drop = html.Div([
     dcc.Dropdown(
-    id='dropdown',
-    options=[
-        {'label': 'Andina', 'value': 'Andina'},
-        {'label': 'Amazónica', 'value': 'Amazonica'},
-        {'label': 'Caribe', 'value': 'Caribe'},
-        {'label': 'Orinoquía', 'value': 'Orinoquia'},
-        {'label': 'Pacífica', 'value': 'Pacifica'}
-    ],
-    value='Andina'),
-    html.Div(id='maps_area_drop_output', style={'display':'none'}),
+    id='maps_dropdown_depto',
+    options=[{'label':df_depto['name_dept'][i],'value':df_depto['code_dept'][i]} for i in range(df_depto.shape[0])]),
+    html.Div(id='maps_depto_drop_output', style={'display':'none'}),
 ])
 
 # ------------------------------
@@ -144,24 +142,20 @@ area_array = ''
 
 # 6.1 Input and Area callbacks
 # ------------------------------
-@app.callback(Output('maps_area_drop_output', 'children'),
-              [Input('dropdown', 'value')])
-def update_output_1kjhskjh(value):
+#@app.callback(Output('maps_area_drop_output', 'children'),
+#              [Input('dropdown', 'value')])
+def update_output_1kjhjh(value):
     global area_array
     area_array = value
     return value
 
-@app.callback(Output('maps_fig1', 'figure'),
-              [Input(f'maps_checklist_{i}', 'value') for i in var_groups])
-def update_output_3(*args):
-    #global input_array
-    fig=maps.fig
+#@app.callback(Output('maps_fig1', 'figure'),
+#              [Input(f'maps_checklist_{i}', 'value') for i in var_groups])
+def update_output_3ss(*args):
     for check_vars in args:
         if check_vars is not None:
             #fig=maps.rebuild_chart(check_vars)
-            fig=maps.rebuild_chart("dane_tic_04_1_p")
-
-            #active_vars = active_vars + check_vars
+            fig = maps.rebuild_chart_by_variable("dane_tic_04_1_p")
     #input_array = active_vars
     return fig
 
@@ -170,10 +164,10 @@ def update_output_3(*args):
 # ------------------------------
 sidebar = html.Div(
     [
-        dbc.Button("Run DEA", id='DEA-button', block=True, color='primary'), #style={"background-color":"#011f4b"}
+        #dbc.Button("Run DEA", id='DEA-button', block=True, color='primary'), #style={"background-color":"#011f4b"}
         html.P('Instrucciones?'),
         html.Hr(),
-        area_drop,
+        depto_drop,
         html.Hr(),
         accordion,
     ],

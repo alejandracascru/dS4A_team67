@@ -12,10 +12,10 @@ from dash.dependencies import Input, Output, State
 # Recall app
 from app import app
 from library import def_data
-from library.elements_all import sidebar
+from library.elements_all import sidebar_benchmarking
 
 ##############################
-# Benchmarking Layout
+# Benchmarking
 ##############################
 # CONTENTS
 # 1. Styles
@@ -43,7 +43,7 @@ MAP_BENCHMARK_STYLE = {
 }
 
 # 1.2 Ranking Table Styles
-RANKING_TABLE_BENCHMARK_STYLE = {
+GROUP_TABLE_BENCHMARK_STYLE = {
     "position": "fixed",
     "width": "20%",
     "right": "1rem",
@@ -53,7 +53,7 @@ RANKING_TABLE_BENCHMARK_STYLE = {
 }
 
 # 1.3 Group Table Styles
-GROUP_TABLE_BENCHMARK_STYLE = {
+RANKING_TABLE_BENCHMARK_STYLE = {
     "position": "fixed",
     "width": "20%",
     "right": "22%",
@@ -73,19 +73,30 @@ SLACK_GRAPH_BENCHMARK_STYLE = {
     "border-radius": "10px"
 }
 
+# 1.5 Efficiency Definition Styles
+EFFICIENCY_DEF_STYLE ={
+    "position": "fixed",
+    "width": "35%",
+    "height": "80px",
+    "left": "17rem",
+    "bottom": "10px",
+    "border": "1px solid #e7eff6",
+    "border-radius": "10px"
+}
+
 # ------------------------------
 # 2. SQL Queries
 # ------------------------------
 # 2.1 Initial query
 # ------------------------------
 df_dropout_efficiency = def_data.runQuery("""
-    select code_municip, mtbm.dane_alu_11 as nodropouts
-    from master_table_by_municipio mtbm 
-    where mtbm.year_cohort = 2019 
-    and mtbm.dane_alu_01 is not null 
-    and mtbm.dane_alu_11 is not null
-    and mtbm.dane_alu_01 > 0;""")
-df_dropout_efficiency['nodropouts'] = df_dropout_efficiency['nodropouts'].astype(np.float64)
+    select 1 as Rank, code_municip, name_municip as muni,
+    (dane_alu_01 - dane_alu_11) as efficiency 
+    from master_table_by_municipio 
+    where year_cohort = 2019 
+    and dane_alu_01 is not null  and dane_alu_11 is not null  
+    and dane_alu_01 > 0; """)
+df_dropout_efficiency['efficiency'] = df_dropout_efficiency['efficiency'].astype(np.float64)
 # 2.1 Query function
 # ------------------------------
 
@@ -102,7 +113,7 @@ with open('data/municipios95.json') as geo:
 EF_Map = px.choropleth_mapbox(df_dropout_efficiency,     # Data
         locations='code_municip',                # Column containing the identifiers used in the GeoJSON file
         featureidkey="properties.MPIO_CCNCT",    # Column in de JSON containing the identifier of the municipality.
-        color='nodropouts',                      # Column giving the color intensity of the region
+        color='efficiency',                      # Column giving the color intensity of the region
         geojson=munijson,                        # The GeoJSON file
         zoom=4,                                  # Zoom
         mapbox_style="white-bg",           # Mapbox style, for different maps you need a Mapbox account and a token
@@ -119,12 +130,28 @@ EF_Map.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
 # ------------------------------
 ranking_table = dt.DataTable(
     id='benchmarking_rank_table',
-    columns=[{"name": i, "id": i} for i in df_dropout_efficiency.columns],
+    columns=[{"name": 'Rank', "id": 'rank'},
+             {'name':'Municipality','id':'muni'},
+             {'name':'Efficiency','id':'efficiency_percent'}],
     data=df_dropout_efficiency.to_dict('records'),
-    style_table={'height': '280px', 'overflowY': 'auto'}
+    style_table={'height': '280px', 'overflowY': 'auto'},
+    style_cell={
+            'whiteSpace': 'normal',
+            'height': 'auto',
+        },
+    style_cell_conditional=[
+            {'if': {'column_id': 'rank'},'width': '15%'},#,'max-width': '15%'
+            {'if': {'column_id': 'muni'},'width': '35%'},#,'max-width': '35%'
+            {'if': {'column_id': 'efficiency_percent'},'width': '15%'}, #,'max-width': '15%'
+        ],
+    style_as_list_view=True,
+    #style_data_conditional=[{
+    #        'if': {'column_id': 'efficiency'},
+    #        'format': FormatTemplate.percentage(1)
+    #    }]
 )
 
-# ------------------------------
+# ----------------efficiency--------------
 # 5. DMU Groups
 # ------------------------------
 group_table = dt.DataTable(
@@ -138,8 +165,18 @@ group_table = dt.DataTable(
 # 6. Slack/Waste
 # ------------------------------
 
-slack_graph = px.histogram(df_dropout_efficiency, x="nodropouts", height=200)
+slack_graph = px.histogram(df_dropout_efficiency, x="efficiency", height=200)
 slack_graph.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
+
+# ------------------------------
+# 7. Efficiency Definition
+# ------------------------------
+efficiency_def = html.Div(
+    [
+        html.P('Efficient municipalities are those that produce the lesser school dropout while spending a given amount of the inputs:')
+    ],
+    style=EFFICIENCY_DEF_STYLE
+)
 
 # ------------------------------
 # 8. Callback and DEA
@@ -153,7 +190,7 @@ def on_button_click(n):
         # 1.1 Get variable ids from checklist
         var_list = ''
         single_qote = "'"
-        for var in sidebar.input_array:
+        for var in sidebar_benchmarking.input_array:
             var_list = var_list + single_qote + var + single_qote + ','
         var_list = var_list[:-1]
 
@@ -175,8 +212,8 @@ def on_button_click(n):
         var_res = var_res + ' and dane_alu_01 > 0; '
 
         # 2.2 Define the region restriction
-        if sidebar.area_array is not None:
-            are_res = 'and region = ' + single_qote + sidebar.area_array + single_qote + ' '
+        if sidebar_benchmarking.area_array is not None:
+            are_res = 'and region = ' + single_qote + sidebar_benchmarking.area_array + single_qote + ' '
 
         # 2.3 Define the SQL query
         benchmarking_sql_query = 'select code_municip, name_municip as muni, ' + var_col + \
@@ -213,27 +250,34 @@ def on_button_click(n):
                             'reference_set': def_data.BCCO_DMU_REFSET(df_benchmarking_data, inp, out, ph2.x),
                             'slack': def_data.BCCO_DMU_VAR(inp, out, ph1_dual.slack)}, ignore_index=True)
 
-        # 5. Creates new map
-        # 5.1 Loads JSON file
+        # 5. Process the results
+        # 5.1 Merge to get municipalities names
+        ef = ef.merge(df_benchmarking_data[['DMU', 'muni']], left_on='dmu', right_on='DMU')
+        ef = ef.sort_values(by=["efficiency", 'muni'], ascending=[False, True])
+        ef["rank"] = ef["efficiency"].rank(ascending=False, method='min')
+        ef['efficiency_percent'] = ef['efficiency'].astype(float).map("{:.1%}".format)
+
+        # 6. Creates new map
+        # 6.1 Loads JSON file
         # # ------------------------------
         map_url = ''
-        if sidebar.area_array is None:
+        if sidebar_benchmarking.area_array is None:
             map_url = 'data/municipios95.json'
-        elif sidebar.area_array == 'Amazonica':
+        elif sidebar_benchmarking.area_array == 'Amazonica':
             map_url = 'data/amazonica90.json'
-        elif sidebar.area_array == 'Andina':
+        elif sidebar_benchmarking.area_array == 'Andina':
             map_url = 'data/andina90.json'
-        elif sidebar.area_array == 'Caribe':
+        elif sidebar_benchmarking.area_array == 'Caribe':
             map_url = 'data/caribe90.json'
-        elif sidebar.area_array == 'Orinoquia':
+        elif sidebar_benchmarking.area_array == 'Orinoquia':
             map_url = 'data/orinoquia90.json'
-        elif sidebar.area_array == 'Pacifica':
+        elif sidebar_benchmarking.area_array == 'Pacifica':
             map_url = 'data/pacifico90.json'
 
         with open(map_url) as geo:
             munijson = json.loads(geo.read())
 
-        # 5.2 Define new map properties
+        # 6.2 Define new map properties
         # ------------------------------
         new_Map = px.choropleth_mapbox(ef,               # Data
               locations='dmu',                          # Column containing the identifiers used in the GeoJSON file
@@ -249,7 +293,7 @@ def on_button_click(n):
         new_Map.update_geos(fitbounds="locations", visible=False)
         new_Map.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
 
-        new_Rank_data = ef[['dmu','efficiency']].to_dict('records')
+        new_Rank_data = ef[['rank','muni','efficiency_percent']].to_dict('records')
 
     else:
         new_Map = EF_Map
@@ -261,10 +305,21 @@ def on_button_click(n):
 # 9. Layout
 # ------------------------------
 benchmarking = html.Div([
-    sidebar.sidebar,
+    sidebar_benchmarking.sidebar,
     html.Div([dcc.Graph(figure=EF_Map, id='benchmarking_map')],style = MAP_BENCHMARK_STYLE),
+    efficiency_def,
     html.Div([ranking_table],style = RANKING_TABLE_BENCHMARK_STYLE),
     html.Div([group_table],style = GROUP_TABLE_BENCHMARK_STYLE),
     html.Div([dcc.Graph(figure=slack_graph, id='slack_graph')],style = SLACK_GRAPH_BENCHMARK_STYLE)
 
 ], className="ds4a-body")
+
+# TODO: add more functionality
+# 1. Hover
+# 1.1 Accordion, show variable description.
+# 1.2 Map, show input and output values, efficiency, ranking, reference set, and cause of slack.
+# 2. Click
+# 2.1 Rank table, when click show map hover.
+#
+# TODO: fix initial efficiency data
+
