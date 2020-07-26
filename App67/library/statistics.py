@@ -61,11 +61,11 @@ def get_correlation_df(df_in, var1, var2, year):
     df_out = df_year[[var1, var2, 'name_dept', 'code_dept', 'name_municip', 'code_municip', 'region']]
 
     region_to_number = {
-        'Andina':1,
-        'Caribe':2,
-        'Amazonica':3,
-        'Pacifica':4,
-        'Orinoquia':5,
+        'Andina':'1',
+        'Caribe':'2',
+        'Amazonica':'3',
+        'Pacifica':'4',
+        'Orinoquia':'5',
     }
 
     def change_to_code(region):
@@ -88,7 +88,7 @@ def make_donut_desertion_fig(label_desercion, derc_perc):
                                  hoverinfo="label+value"
                                  )
                                  ])
-    fig.update_layout(title_text="Deserción Total Población Escolar: " + label_desercion)
+    fig.update_layout(title_text="Total School Population Drop Out: " + label_desercion)
     return fig
 
 
@@ -97,7 +97,11 @@ def make_bar_cobertura_fig(value_cobertura, cob_perc):
     fig = go.Figure(data=[go.Bar(x=labels,
                                  y=cob_perc,
                                  )])
-    fig.update_layout(title_text="Cobertura Total Población Escolar: " + value_cobertura)
+    fig.update_layout(
+        title_text="Total School Population Coverage: " + value_cobertura,
+        xaxis_title="Year",
+        yaxis_title="School Population Coverage [%]",
+    )
     return fig
 
 
@@ -113,36 +117,13 @@ def figure_desertion_year(df_all, selected_code):
         'paper_bgcolor': 'rgba(0, 0, 0, 0)',
     })
 
-    result_fig.update_layout(title_text="Deserción 2011-2019")
+    result_fig.update_layout(
+        title_text="School Drop Out Percentage vs Years",
+        xaxis_title="Year",
+        yaxis_title="School Drop Out [%]",
+    )
 
     return result_fig
-
-
-# def figure_correlation(scatter_df, var1, var2, filter_type='region'):
-#     result_fig = go.Figure()
-#
-#     if filter_type == 'region':
-#         filter_selection = 'reg_code'
-#     else:
-#         filter_selection = 'code_dept'
-#
-#     regions = scatter_df[filter_selection].unique()
-#
-#     for r in regions:
-#         temp_df = scatter_df[scatter_df[filter_selection] == r]
-#         result_fig.add_trace(go.Scatter(
-#             x=temp_df[var1],
-#             y=temp_df[var2],
-#             text=temp_df['region'] + ' - ' + temp_df['name_dept'] + ' - ' + temp_df['name_municip'],
-#             name=str(r),
-#             mode='markers',
-#             marker=dict(
-#                 size=16,
-#             )
-#         ))
-#
-#     result_fig.update_layout(title='Correlation Selected Variables')
-#     return result_fig
 
 
 ##############################
@@ -188,149 +169,6 @@ Years_fig = figure_desertion_year(
     selected_code=selected_code
 )
 
-# Correlation Figure
-# df_scatter = get_correlation_df(
-#     df_in=df_all,
-#     var1=var1_in,
-#     var2=var2_in,
-#     year=selected_year
-# )
-#
-# Corr_fig = figure_correlation(
-#     scatter_df=df_scatter,
-#     var1=var1_in,
-#     var2=var2_in,
-#     filter_type='region'
-# )
-
-##############################
-# Dropdowns
-##############################
-
-dropdown_region = dcc.Dropdown(
-    id='demo-dropdown',
-    options=[
-        {'label': 'Regiones', 'value': 'region'},
-        {'label': 'Departamentos', 'value': 'depto'}
-    ],
-    value='region'
-)
-
-##############################
-# Layout
-##############################
-
-explore_municipio = html.Div(
-    [
-        dbc.Row(
-            [
-                dbc.Col(
-                    html.H3(""),
-                    align="start",
-                    width=2
-                ),
-                dbc.Col(
-                    html.H3("Explorar Deserción y Cobertura por Municipio"),
-                    align="center",
-                ),
-            ]
-        ),
-
-        dbc.Row(
-            [
-                dbc.Col(
-                    html.Div('Dropdown'), width=2
-                ),
-                dbc.Col(
-                    dcc.Graph(figure=PieFig, id='Pie_d'), width=3
-                ),
-                dbc.Col(
-                    dcc.Graph(figure=Years_fig, id='Years_d'), width=4
-                ),
-                dbc.Col(
-                    dcc.Graph(figure=BarFig, id='Bar_c'), width=3
-                ),
-            ],
-            align="center",
-        ),
-    ]
-)
-
-explore_correlation = html.Div(
-    [
-        dbc.Row(
-            [
-                dbc.Col(
-                    html.H3(""),
-                    align="start",
-                    width=2
-                ),
-                dbc.Col(
-                    html.H3("Explorar Correlación entre Variables"),
-                    align="start",
-                ),
-            ]
-        ),
-
-        dbc.Row([
-            dbc.Col(
-                html.Div(""), width=2
-            ),
-            dbc.Col(
-                html.Div("Seleccione Filtro"), width=3
-            ),
-            dbc.Col(
-                html.Div(dropdown_region), width=5
-            ),
-        ]
-        ),
-
-        dbc.Row(
-            [
-                dbc.Col(
-                    html.Div(""), width=1
-                ),
-                dbc.Col(
-                    html.Div(""), width=1
-                ),
-                dbc.Col(
-                    dcc.Graph(id='Corr_fig'), width=12
-                ),
-            ],
-            align="center",
-        ),
-    ]
-)
-
-
-dbc.Col(html.Div("One of three columns"), width=3),
-statistics = html.Div(
-    [
-        sidebar_statistics.sidebar,
-        dbc.Row(html.Div(
-            explore_correlation
-        ),style={'position':'fixed','left':'17rem'}),
-
-        dbc.Row(dbc.Col(
-            html.Div("")
-        )),
-
-        dbc.Button(
-            "Explorar Deserción y Cobertura por Municipio",
-            id="collapse-button",
-            className="mb-3",
-            color="secondary",
-        ),
-        dbc.Collapse(
-            dbc.Card(dbc.CardBody(
-                explore_municipio
-            )),
-            id="collapse",
-        ),
-
-    ]
-)
-
 
 ##############################
 # Callbacks
@@ -368,8 +206,24 @@ def figure_correlation(value):
 
     if value == 'region':
         filter_selection = 'reg_code'
+        label_dictionary = {
+            '1': 'Andina',
+            '2': 'Caribe',
+            '3': 'Amazonica',
+            '4': 'Pacifica',
+            '5': 'Orinoquia',
+        }
     else:
         filter_selection = 'code_dept'
+        label_dictionary = {
+            '91': 'Amazonas', '5': 'Antioquia', '81': 'Arauca', '8': 'Atlántico', '11': 'Bogotá D.C.',
+            '13': 'Bolívar', '15': 'Boyacá', '17': 'Caldas', '18': 'Caquetá', '85': 'Casanare',
+            '19': 'Cauca', '20': 'Cesar', '27': 'Chocó', '23': 'Córdoba', '25': 'Cundinamarca',
+            '94': 'Guainía', '95': 'Guaviare', '41': 'Huila', '44': 'La Guajira', '47': 'Magdalena',
+            '50': 'Meta', '52': 'Nariño', '54': 'Norte de Santander', '86': 'Putumayo', '63': 'Quindío',
+            '66': 'Risaralda', '88': 'San Andrés y Providencia', '68': 'Santander', '70': 'Sucre', '73': 'Tolima',
+            '76': 'Valle del Cauca', '97': 'Vaupés', '99': 'Vichada'
+        }
 
     regions = scatter_df[filter_selection].unique()
 
@@ -379,13 +233,121 @@ def figure_correlation(value):
             x=temp_df[var1_in],
             y=temp_df[var2_in],
             text=temp_df['region'] + ' - ' + temp_df['name_dept'] + ' - ' + temp_df['name_municip'],
-            name=str(r),
+            name=label_dictionary[str(r)],
             mode='markers',
             marker=dict(
                 size=16,
             )
         ))
 
-    result_fig.update_layout(title='Correlation Selected Variables')
+    result_fig.update_layout(
+        title='Correlation Selected Variables',
+        xaxis_title="School Drop Out Percentage [%]",
+        yaxis_title="School Enrollment Percentage [%]",
+    )
     return result_fig
 
+
+##############################
+# Dropdowns
+##############################
+
+dropdown_region = dcc.Dropdown(
+    id='demo-dropdown',
+    options=[
+        {'label': 'Regions', 'value': 'region'},
+        {'label': 'Departments', 'value': 'depto'}
+    ],
+    value='region'
+)
+
+
+##############################
+# Layout
+##############################
+GROUP_TABLE_BENCHMARK_STYLE = {
+        "position": "fixed",
+        "width": "20%",
+        "right": "1rem",
+        "top": "140px",
+        "border": "1px solid #e7eff6",
+        "border-radius": "10px"
+    }
+
+
+explore_municipio = html.Div(
+    [
+        dbc.Row(
+            [
+                dbc.Col(
+                    html.H3("Municipality Statistics", style={"left": "10px"}),
+                ),
+            ]
+        ),
+
+        dbc.Row(
+            [
+                dbc.Row(
+                    dcc.Graph(figure=Years_fig, id='Years_d'),
+                ),
+                dbc.Row([
+                    dbc.Col(
+                        dcc.Graph(figure=PieFig, id='Pie_d'),
+                    ),
+                    dbc.Col(
+                        dcc.Graph(figure=BarFig, id='Bar_c'),
+                    ),
+                ]),
+            ],
+        ),
+    ]
+)
+
+explore_correlation = html.Div(
+    [
+
+        dbc.Row([
+            dbc.Col(
+                html.Div("Select Hue Filter"),
+            ),
+            dbc.Col(
+                html.Div(dropdown_region),
+            ),
+        ]),
+
+        dbc.Row(
+            dcc.Graph(id='Corr_fig'),
+        ),
+    ]
+)
+
+
+statistics = html.Div(
+    [
+        sidebar_statistics.sidebar,
+
+        html.Div(
+            [
+                html.H3("Explore Variables Correlation", style={"top": "10px"}),
+
+                dbc.Row(explore_correlation),
+
+                dbc.Button(
+                        "Explore Municipality Statistics",
+                        id="collapse-button",
+                        className="mb-3",
+                        color="secondary",
+                ),
+
+                dbc.Collapse(
+                    dbc.Card(dbc.CardBody(
+                        explore_municipio,
+                    )),
+                    id="collapse",
+                ),
+
+            ], style={'position': 'absolute', 'left': '20rem', 'top': '11rem', "width": "75%"}
+        ),
+
+    ]
+)

@@ -166,10 +166,8 @@ def update_output_3(*args):
 # ------------------------------
 sidebar = html.Div(
     [
-        dbc.Button("Explora!", id='stats_DEA-button', block=True, color='primary'), #style={"background-color":"#011f4b"}
-        html.P('Instrucciones?'),
-        #html.Hr(),
-        #area_drop,
+        dbc.Button("Compare Variables", id='stats_DEA-button', block=True, color='primary'),
+        html.P('Select 2 Variables'),
         html.Hr(),
         accordion,
     ],
