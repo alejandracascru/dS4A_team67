@@ -5,8 +5,7 @@ from dash.dependencies import Input, Output, State
 
 #Recall app
 from app import app
-#from library import maps, statistics, clustering, benchmarking, general
-from library import clustering, benchmarking
+from library import maps, statistics, clustering, benchmarking, general
 
 
 tab_bar = html.Div(className="tab-bar",
@@ -30,13 +29,13 @@ tab_bar = html.Div(className="tab-bar",
 @app.callback(Output("content", "children"), [Input("tabs", "active_tab")])
 def switch_tab(at):
     if at == "tab-1":
-        return html.P("Thi")#general.general
+        return general.general
     elif at == "tab-2":
-        return html.P("Thi")#maps.map
+        return maps.map
     elif at == "tab-3":
-        return html.P("Thi")#statistics.statistics
+        return statistics.statistics
     elif at == "tab-4":
         return html.Div(clustering.clustering, style={"maxHeight": "700px", "overflowY": "scroll"})
     elif at == "tab-5":
-        return html.P('Hola')#benchmarking.benchmarking
+        return benchmarking.benchmarking
     return html.P("This shouldn't ever be displayed...")
