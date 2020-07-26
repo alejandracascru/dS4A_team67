@@ -10,7 +10,7 @@ from app import app
 ###########################################################
 
 # LOAD THE DIFFERENT FILES
-from library import title, tab_bar
+from library import title, tab_bar, clustering
 
 # PLACE THE COMPONENTS IN THE LAYOUT
 
