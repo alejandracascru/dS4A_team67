@@ -50,15 +50,17 @@ for gr in var_groups:
         options.append( {'label': '  ' + list(df_vars[df_vars['var_id']==str(var_id)]['label'])[0], 'value': str(var_id)} )
     tempCardBody.append(
         dbc.CardBody(
-            [dcc.Checklist(
+            [dcc.RadioItems(
                 id=f"stats_checklist_{gr}",
                 options=options,
+                value="",
                 style={"font-size": "small"}),
             html.Div(id=f"stats_checklist_{gr}_output", style={'display':'none'})],
             style={'height': '200px', 'overflowY': 'auto'}
         )
     )
     cardBody.insert(gr, tempCardBody)
+
 
 def make_item(i):
     # we use this function to make the example items to avoid code duplication
@@ -98,7 +100,6 @@ accordion = html.Div(
 )
 def toggle_accordion(*args):
     ctx = dash.callback_context
-    print('entra')
     n = args[0:int(len(args)/2)]
     n = list(n)
     is_open = args[int(len(args)/2):]
@@ -117,49 +118,6 @@ def toggle_accordion(*args):
             toggle[i-1] = not is_open[i-1]
     return toggle
 
-
-# ------------------------------
-# 4. Area drop down
-# ------------------------------
-area_drop = html.Div([
-    dcc.Dropdown(
-    id='stats_dropdown',
-    options=[
-        {'label': 'Andina', 'value': 'Andina'},
-        {'label': 'Amazónica', 'value': 'Amazonica'},
-        {'label': 'Caribe', 'value': 'Caribe'},
-        {'label': 'Orinoquía', 'value': 'Orinoquia'},
-        {'label': 'Pacífica', 'value': 'Pacifica'}
-    ],
-    value='Andina'),
-    html.Div(id='stats_area_drop_output', style={'display':'none'}),
-])
-
-# ------------------------------
-# 6. Input and Area arrays
-# ------------------------------
-input_array = []
-area_array = ''
-
-# 6.1 Input and Area callbacks
-# ------------------------------
-@app.callback(Output('stats_area_drop_output', 'children'),
-              [Input('stats_dropdown', 'value')])
-def update_output_1kjhskjh(value):
-    global area_array
-    area_array = value
-    return value
-
-@app.callback(Output('stats_checklist_2_output', 'children'),
-              [Input(f'stats_checklist_{i}', 'value') for i in var_groups])
-def update_output_3(*args):
-    global input_array
-    active_vars = []
-    for check_vars in args:
-        if check_vars is not None:
-            active_vars = active_vars + check_vars
-    input_array = active_vars
-    return 'Fabio A. Lagos'
 
 # ------------------------------
 # 5. SIDEBAR LAYOUT

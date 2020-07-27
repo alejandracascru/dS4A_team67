@@ -186,14 +186,61 @@ def toggle_collapse(n, is_open):
     return is_open
 
 
+sidebar_groups = sidebar_statistics.df_vars['group_id'].unique()
+sidebar_vars = sidebar_statistics.df_vars['var_id'].unique()
+df_vars_here = sidebar_statistics.df_vars
+
+# @app.callback(
+#     Output(component_id='test-output', component_property='children'),
+#     [Input(f'stats_checklist_{i}', 'value') for i in sidebar_groups],
+#     [State(f"stats_collapse-{i}", "is_open") for i in sidebar_groups],
+#
+# )
+# def update_output_div(*args):
+#     values = args[0:int(len(args)/2)]
+#     is_open = args[int(len(args)/2):]
+#     output = ''
+#     label = ''
+#     for i in range(len(values)):
+#         check_vars = values[i]
+#         temp_is_open = is_open[i]
+#         if check_vars is not None and temp_is_open:
+#             output = check_vars
+#             label_temp = df_vars_here[df_vars_here['var_id'] == output]['name'].to_numpy()
+#             label = str(label_temp[0])
+#     return 'Output: {}'.format(label)
+
 
 @app.callback(
     Output('Corr_fig', 'figure'),
-    [Input('demo-dropdown', 'value')])
-def figure_correlation(value):
+    [Input(f'stats_checklist_{i}', 'value') for i in sidebar_groups],
+    [State(f"stats_collapse-{i}", "is_open") for i in sidebar_groups],
+)
+def figure_correlation(*args):
+    # n_args = len(args)
+    values = args[0:int(len(args)/2)]
+    is_open = args[int(len(args)/2):]
+
+    def selected_var(values, is_open):
+        output = ''
+        for i in range(len(values)):
+            check_vars = values[i]
+            temp_is_open = is_open[i]
+            if check_vars is not None and temp_is_open:
+                output = str(check_vars)
+        if output != '':
+            label_temp = df_vars_here[df_vars_here['var_id'] == output]['name'].to_numpy()
+            label = str(label_temp[0])
+
+            axis_temp = df_vars_here[df_vars_here['var_id'] == output]['label'].to_numpy()
+            axis_l = str(axis_temp[0])
+        else:
+            label = 'sa_punt_matematicas'
+            axis_l = 'Math Score - National Test'
+        return label, axis_l
 
     var1_in = 'desertion_perc'
-    var2_in = 'me_tasa_matriculacion_5_16'
+    var2_in, var2_l = selected_var(values, is_open)
 
     scatter_df = get_correlation_df(
         df_in=df_all,
@@ -203,8 +250,8 @@ def figure_correlation(value):
     )
 
     result_fig = go.Figure()
-
-    if value == 'region':
+    reg_dept = 'dept'
+    if reg_dept == 'region':
         filter_selection = 'reg_code'
         label_dictionary = {
             '1': 'Andina',
@@ -243,7 +290,7 @@ def figure_correlation(value):
     result_fig.update_layout(
         title='Correlation Selected Variables',
         xaxis_title="School Drop Out Percentage [%]",
-        yaxis_title="School Enrollment Percentage [%]",
+        yaxis_title=var2_l,
     )
     return result_fig
 
@@ -328,7 +375,10 @@ statistics = html.Div(
 
         html.Div(
             [
-                html.H3("Explore Variables Correlation", style={"top": "10px"}),
+                html.H3("Explore Variables Correlation",
+                    id='test-output',
+                    style={"top": "10px"},
+                    ),
 
                 dbc.Row(explore_correlation),
 
