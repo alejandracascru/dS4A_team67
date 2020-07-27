@@ -1,18 +1,13 @@
 # Basics Requirements
+from dash.dependencies import Input, Output, State
 import dash_html_components as html
 import dash_core_components as dcc
-import matplotlib.pyplot as plt
 import plotly.express as px
-import seaborn as sns
 import numpy as np
 import json
-import dash
-import dash_table
-import pandas as pd
+
 # Recall app
 from app import app
-from library.elements_all import sidebar_benchmarking
-from library.elements_all import dropdown
 from library import def_data
 
 
@@ -31,7 +26,9 @@ from library import def_data
 #  9. Scatterplot
 # 10. Boxplot
 # 11. Second text
-# 12. Layout
+# 12. Empty space
+# 13. Callback
+# 14. Layout
 # ------------------------------
 
 # ------------------------------
@@ -40,19 +37,19 @@ from library import def_data
 # 1.1 Map Styles
 STYLE_CLUSTER_MAP = {
     "position": "absolute",
-    "width": "47%",
-    "height": "400px",
-    "left": "2%",
-    "top": "240px",
+    "width": "42%",
+    "height": "420px",
+    "left": "7%",
+    "top": "140px",
     "border": "1px solid #e7eff6",
     "border-radius": "10px"
 }
 # 1.2 Map Styles
 STYLE_CLUSTER_FIGURE3D = {
     "position": "absolute",
-    "width": "47%",
+    "width": "42%",
     "height": "400px",
-    "right": "2%",
+    "right": "7%",
     "top": "240px",
     "border": "1px solid #e7eff6",
     "border-radius": "10px"
@@ -61,10 +58,9 @@ STYLE_CLUSTER_FIGURE3D = {
 # 1.3 First Text
 STYLE_CLUSTER_FIRST_TEXT = {
     "position": "absolute",
-    "width": "94%",
-    "height": "100px",
-    "left": "3%",
-    "right": "3%",
+    "width": "42%",
+    "height": "90px",
+    "right": "7%",
     "top": "140px",
     "border": "1px solid #e7eff6",
     "border-radius": "10px"
@@ -73,10 +69,10 @@ STYLE_CLUSTER_FIRST_TEXT = {
 # 1.4 Histogram
 STYLE_CLUSTER_HISTOGRAM = {
     "position": "absolute",
-    "width": "47%",
-    "height": "450px",
-    "left": "2%",
-    "top": "660px",
+    "width": "42%",
+    "height": "500px",
+    "left": "7%",
+    "top": "570px",
     "border": "1px solid #e7eff6",
     "border-radius": "10px",
     'overflowY': 'scroll'
@@ -85,10 +81,10 @@ STYLE_CLUSTER_HISTOGRAM = {
 # 1.5 Features
 STYLE_CLUSTER_FEATURES = {
     "position": "absolute",
-    "width": "20%",
-    "height": "450px",
-    "right": "1rem",
-    "top": "660px",
+    "width": "42%",
+    "height": "420px",
+    "right": "7%",
+    "top": "650px",
     "border": "1px solid #e7eff6",
     "border-radius": "10px"
 }
@@ -96,10 +92,10 @@ STYLE_CLUSTER_FEATURES = {
 # 1.6 Dropdown
 STYLE_CLUSTER_DROPDOWN = {
     "position": "absolute",
-    "width": "90%",
-    "height": "50px",
-    "right": "1rem",
-    "top": "1110px",
+    "width": "42%",
+    "height": "60px",
+    "left": "7%",
+    "top": "1080px",
     "border": "1px solid #e7eff6",
     "border-radius": "10px"
 }
@@ -107,10 +103,10 @@ STYLE_CLUSTER_DROPDOWN = {
 # 1.7 Scatterplot
 STYLE_CLUSTER_SCATTERPLOT = {
     "position": "absolute",
-    "width": "20%",
+    "width": "42%",
     "height": "450px",
-    "right": "1rem",
-    "top": "1170px",
+    "left": "7%",
+    "top": "1150px",
     "border": "1px solid #e7eff6",
     "border-radius": "10px"
 }
@@ -118,10 +114,10 @@ STYLE_CLUSTER_SCATTERPLOT = {
 # 1.8 Boxplot
 STYLE_CLUSTER_BOXPLOT= {
     "position": "absolute",
-    "width": "20%",
-    "height": "450px",
-    "right": "1rem",
-    "top": "1170px",
+    "width": "42%",
+    "height": "350px",
+    "right": "7%",
+    "top": "1080px",
     "border": "1px solid #e7eff6",
     "border-radius": "10px"
 }
@@ -129,36 +125,48 @@ STYLE_CLUSTER_BOXPLOT= {
 # 1.9 Second text
 STYLE_CLUSTER_SECOND_TEXT = {
 "position": "absolute",
-    "width": "20%",
-    "height": "80px",
-    "right": "1rem",
-    "top": "1640px",
+    "width": "42%",
+    "height": "160px",
+    "right": "7%",
+    "top": "1440px",
     "border": "1px solid #e7eff6",
     "border-radius": "10px"
+}
+
+# 1.10 Second text
+STYLE_CLUSTER_END_SPACE = {
+"position": "absolute",
+    "width": "42%",
+    "height": "20px",
+    "right": "7%",
+    "top": "1600px"
 }
 # ------------------------------
 # 2. SQL Queries
 # ------------------------------
-# 2.1 Initial query
-# ------------------------------
-# 2.1 Initial query
+# 2.1 Query for cluster by municipality
 # ------------------------------
 df_clusters = def_data.runQuery("""
-    select 1 as Rank, code_municip, name_municip as muni, dane_alu_01 as efficiency,
-    dane_alu_02, dane_doc_01 
-    from master_table_by_municipio 
-    where year_cohort = 2019 
-    and dane_alu_01 is not null  and dane_alu_11 is not null  
-    and dane_alu_01 > 0; """)
-df_clusters['efficiency'] = df_clusters['efficiency'].astype(np.float64)
-
+    select code_municip, name_municip, desertion_no, me_cobertura_neta, desertion_perc, deser_perc_rank, 
+    cobertura_rank, desercion_rank, dane_doc_31
+    from cluster_master_table_by_municipio; """)
+for col in ['desertion_no', 'me_cobertura_neta', 'desertion_perc','dane_doc_31']:
+        df_clusters[col] = df_clusters[col].astype(np.float64)
+df_clusters.rename(columns = {
+    "name_municip": "Municipio", "desertion_no": "# Dropouts",
+    "me_cobertura_neta": "Coverage", "desertion_perc": "% Dropouts",
+    "deser_perc_rank": "Cluster Description","cobertura_rank": "Coverage Type",
+    "desercion_rank": "Desertion Type"}, inplace = True)
+df_clusters['Cluster'] = df_clusters['Cluster Description'].astype(str).str[0]
+# 2.2 Query for features
+# ------------------------------
 df_vars = def_data.runQuery("""
-    SELECT column_name as feature 
-    FROM information_schema.columns
-    WHERE table_schema = 'public'
-    AND table_name   = 'master_table_by_municipio'
-    LIMIT 118; """)
-
+    select cvr.var_id, cvr.var_name, vd.label, vd.description, cvr.weight  
+    from cluster_vars_ranking cvr 
+    left join var_definition vd 
+    on cvr.var_id  = vd.var_id ; """)
+df_vars['weight'] = df_vars['weight'].astype(np.float64)
+df_vars.rename(columns = {"weight": "Weight",'label':'Feature'}, inplace = True)
 # ------------------------------
 #  3. Map
 # ------------------------------
@@ -170,11 +178,10 @@ with open('data/municipios95.json') as geo:
 
 # 3.2 Define initial map properties
 # ------------------------------
-df_clusters['cluster'] = [str(np.random.randint(1, 5)) for i in range(df_clusters['efficiency'].shape[0])]
 cl_map = px.choropleth_mapbox(df_clusters,     # Data
         locations='code_municip',                # Column containing the identifiers used in the GeoJSON file
         featureidkey="properties.MPIO_CCNCT",    # Column in de JSON containing the identifier of the municipality.
-        color='cluster',                         # Column giving the color intensity of the region
+        color='Cluster',                         # Column giving the color intensity of the region
         geojson=munijson,                        # The GeoJSON file
         zoom=4,                                  # Zoom
         mapbox_style="white-bg",           # Mapbox style, for different maps you need a Mapbox account and a token
@@ -182,8 +189,8 @@ cl_map = px.choropleth_mapbox(df_clusters,     # Data
         color_continuous_scale="Viridis",        # Color Scheme
         opacity=0.5,                             # Opacity of the map
         height=380,
-        hover_name='muni',
-        hover_data=['cluster','efficiency']
+        hover_name='Municipio',
+        hover_data=['# Dropouts','Coverage','% Dropouts']
         )
 cl_map.update_geos(fitbounds="locations", visible=False)
 cl_map.update_layout(title_text ='Municipalities by cluster',margin={"r":20,"t":40,"l":20,"b":0})
@@ -192,8 +199,8 @@ cluster_map = html.Div([dcc.Graph(figure=cl_map, id='cluster_map')],style=STYLE_
 # ------------------------------
 #  4. Figure 3D
 # ------------------------------
-cl_scatter = px.scatter_3d(df_clusters, x="dane_doc_01", y="dane_alu_02", z="cluster",
-                           color="dane_doc_01",hover_name="muni",
+cl_scatter = px.scatter_3d(df_clusters, x="# Dropouts", y="Coverage", z="% Dropouts",
+                           color="Cluster",hover_name="Municipio",
                            opacity=0.5)
 cluster_figure_3D = html.Div([dcc.Graph(figure=cl_scatter, id='cluster_map')],style=STYLE_CLUSTER_FIGURE3D)
 # ------------------------------
@@ -203,11 +210,10 @@ cluster_first_text = html.Div(html.P('First text -> Resultado del test Kruskal')
 # ------------------------------
 #  6. Histogram
 # ------------------------------
-df_vars['weight'] = [np.random.randint(1, 100) for i in range(df_vars['feature'].shape[0])]
-#ax = sns.barplot(x="feature", y="weight", data=df_vars,palette="PuBu_r")
-df_vars = df_vars.sort_values(by='weight', ascending=False)
-fig = px.bar(df_vars, x="weight", y="feature", orientation='h', height=2000)
-cluster_histogram = html.Div([dcc.Graph(figure=fig, id='cluster_hist')],style=STYLE_CLUSTER_HISTOGRAM)
+df_vars = df_vars.sort_values(by='Weight', ascending=True)
+cluster_hist = px.bar(df_vars, x="Weight", y="Feature", hover_data=['description'],
+              title="Feature Weights", orientation='h', height=2000)
+cluster_histogram = html.Div([dcc.Graph(figure=cluster_hist, id='cluster_hist')],style=STYLE_CLUSTER_HISTOGRAM)
 # ------------------------------
 #  7. Features table
 # ------------------------------
@@ -215,21 +221,95 @@ cluster_features = html.Div(html.P('Features selection'),style=STYLE_CLUSTER_FEA
 # ------------------------------
 #  8. Drop down for different clusters
 # ------------------------------
-cluster_dropdown = html.Div(html.P('Dropdown'),style=STYLE_CLUSTER_DROPDOWN)
+cluster_var_drop = html.Div([
+    dcc.Dropdown(
+    id='cluster_var_drop',
+    options=[{'label':df_vars['Feature'][i],'value':df_vars['var_id'][i]} for i in range(df_vars.shape[0])],
+    value=280
+    )
+])
+
+cluster_radio_log = dcc.RadioItems(
+    options=[
+        {'label': '   Normal   ', 'value': 'nor'},
+        {'label': '   Log(x)   ', 'value': 'log'}
+    ],
+    value='nor',
+    labelStyle={'display': 'inline-block'}
+)
+
+cluster_dropdown = html.Div([cluster_var_drop,cluster_radio_log,html.P('Scatterplot')],style=STYLE_CLUSTER_DROPDOWN)
 # ------------------------------
 #  9. Scatterplot
 # ------------------------------
-cluster_scatterplot = html.Div(html.P('Scatterplot'),style=STYLE_CLUSTER_SCATTERPLOT)
+cluster_select_drop = html.Div([
+    dcc.Dropdown(
+    id='cluster_select_drop',
+    options=[
+        {'label': 'Cluster 1: Low Dropput, Low Coverage', 'value': 'cl1'},
+        {'label': 'Cluster 2: Low Dropput, High Coverage', 'value': 'cl2'},
+        {'label': 'Cluster 3: High Dropput, Low Coverage', 'value': 'cl3'},
+        {'label': 'Cluster 4: High Dropput, High Coverage', 'value': 'cl4'}
+    ])
+])
+
+cluster_radio_y = dcc.RadioItems(
+    options=[
+        {'label': 'Coverage', 'value': 'Coverage'},
+        {'label': '# Dropouts', 'value': '# Dropouts'},
+        {'label': '% Dropouts', 'value': '% Dropouts'}
+    ],
+    value='% Dropouts',
+    labelStyle={'display': 'inline-block'}
+)
+
+cluster_scatter = px.scatter(df_clusters, x='dane_doc_31', y='% Dropouts')
+
+cluster_scatterplot = html.Div([cluster_select_drop,
+                                cluster_radio_y,
+                                dcc.Graph(figure=cluster_scatter, id='cluster_scatter')],
+                               style=STYLE_CLUSTER_SCATTERPLOT)
 # ------------------------------
 # 10. Boxplot
 # ------------------------------
-cluster_boxplot = html.Div(html.P('Boxplot'),style=STYLE_CLUSTER_BOXPLOT)
+cluster_box = px.box(df_clusters, x="Coverage Type", y="dane_doc_31", color="Desertion Type",
+             points="all", title="Box plot of blabla", hover_data=["Municipio"])
+cluster_boxplot = html.Div([dcc.Graph(figure=cluster_box, id='cluster_box')],style=STYLE_CLUSTER_BOXPLOT)
 # ------------------------------
 # 11. Second text
 # ------------------------------
 cluster_second_text = html.Div(html.P('Second Text'),style=STYLE_CLUSTER_SECOND_TEXT)
 # ------------------------------
-# 12. Layout
+# 12. End space
+# ------------------------------
+cluster_end_space = html.Div(html.P('Fabio'),style=STYLE_CLUSTER_END_SPACE,id='empty_space')
+
+# ------------------------------
+# 13. Callback
+# ------------------------------
+@app.callback(
+    Output('cluster_scatter', 'figure'),
+    [Input('cluster_var_drop', 'value')])
+def update_cluster_figures(feature_id):
+    if feature_id is not None:
+        new_feature_name = df_vars[df_vars['var_id'] == str(feature_id)][['var_name']].reset_index()['var_name'][0]
+        new_feature_label = df_vars[df_vars['var_id'] == str(feature_id)][['Feature']].reset_index()['Feature'][0]
+        sql_query = 'select name_municip, desertion_no, desertion_perc, me_cobertura_neta, '+ \
+                    new_feature_name + ' from cluster_master_table_by_municipio; '
+        df_temp = def_data.runQuery(sql_query)
+        for col in ['desertion_no', 'me_cobertura_neta', 'desertion_perc', new_feature_name]:
+            df_temp[col] = df_temp[col].astype(np.float64)
+        df_temp.rename(columns={
+            new_feature_name: new_feature_label,
+            'desertion_no':'# Dropouts','desertion_perc':'% Dropouts','me_cobertura_neta':'Coverage'
+        }, inplace=True)
+        print(df_temp.head())
+        new_scatter = px.scatter(df_temp, x=new_feature_label, y='% Dropouts')
+        return new_scatter
+
+
+# ------------------------------
+# 14. Layout
 # ------------------------------
 clustering = html.Div([
     cluster_map,
@@ -240,7 +320,8 @@ clustering = html.Div([
     cluster_dropdown,
     cluster_scatterplot,
     cluster_boxplot,
-    cluster_second_text
+    cluster_second_text,
+    cluster_end_space
 ], className="ds4a-body")
 
 
