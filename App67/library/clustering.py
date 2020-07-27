@@ -231,11 +231,12 @@ cluster_var_drop = html.Div([
 
 cluster_radio_log = dcc.RadioItems(
     options=[
-        {'label': '   Normal   ', 'value': 'nor'},
+        {'label': '   Linear   ', 'value': 'linear'},
         {'label': '   Log(x)   ', 'value': 'log'}
     ],
-    value='nor',
-    labelStyle={'display': 'inline-block'}
+    value='linear',
+    labelStyle={'display': 'inline-block'},
+    id = 'cluster_radio_log'
 )
 
 cluster_dropdown = html.Div([cluster_var_drop,cluster_radio_log,html.P('Scatterplot')],style=STYLE_CLUSTER_DROPDOWN)
@@ -246,14 +247,15 @@ cluster_select_drop = html.Div([
     dcc.Dropdown(
     id='cluster_select_drop',
     options=[
-        {'label': 'Cluster 1: Low Dropput, Low Coverage', 'value': 'cl1'},
-        {'label': 'Cluster 2: Low Dropput, High Coverage', 'value': 'cl2'},
-        {'label': 'Cluster 3: High Dropput, Low Coverage', 'value': 'cl3'},
-        {'label': 'Cluster 4: High Dropput, High Coverage', 'value': 'cl4'}
+        {'label': 'Cluster 1: Low Dropput, Low Coverage', 'value': '1_DS_Baja-CB_Baja'},
+        {'label': 'Cluster 2: Low Dropput, High Coverage', 'value': '2_DS_Baja-CB_Alta'},
+        {'label': 'Cluster 3: High Dropput, Low Coverage', 'value': '3_DS_Alta-CB_Baja'},
+        {'label': 'Cluster 4: High Dropput, High Coverage', 'value': '4_DS_Alta-CB_Alta'}
     ])
 ])
 
 cluster_radio_y = dcc.RadioItems(
+    id='cluster_radio_y',
     options=[
         {'label': 'Coverage', 'value': 'Coverage'},
         {'label': '# Dropouts', 'value': '# Dropouts'},
@@ -282,31 +284,62 @@ cluster_second_text = html.Div(html.P('Second Text'),style=STYLE_CLUSTER_SECOND_
 # ------------------------------
 # 12. End space
 # ------------------------------
-cluster_end_space = html.Div(html.P('Fabio'),style=STYLE_CLUSTER_END_SPACE,id='empty_space')
+cluster_end_space = html.Div(html.P(''),style=STYLE_CLUSTER_END_SPACE,id='empty_space')
 
 # ------------------------------
 # 13. Callback
 # ------------------------------
+# 13.1 Additional data frame to be transformed upon changes in the page.
+df_scatter = df_clusters.copy()
+# 13.2 Variable to know which Feature is selected.
+cl_scatter_feature = 280 # Should be the same as in the line 228.
+cl_feature_label = 'dane_doc_31' # Label of variable 280.
 @app.callback(
-    Output('cluster_scatter', 'figure'),
-    [Input('cluster_var_drop', 'value')])
-def update_cluster_figures(feature_id):
+    [Output('cluster_scatter', 'figure'),
+     Output('cluster_box', 'figure')],
+    [Input('cluster_var_drop', 'value'),
+    Input('cluster_radio_log', 'value'),
+    Input('cluster_select_drop', 'value'),
+    Input('cluster_radio_y', 'value')])
+def update_cluster_figures(feature_id,log_value, cluster_value, y_value):
+    global df_scatter, cl_scatter_feature, cl_feature_label
+    # 1. Determine if there is a change in the feature selection. If so, changes the data frame.
     if feature_id is not None:
-        new_feature_name = df_vars[df_vars['var_id'] == str(feature_id)][['var_name']].reset_index()['var_name'][0]
-        new_feature_label = df_vars[df_vars['var_id'] == str(feature_id)][['Feature']].reset_index()['Feature'][0]
-        sql_query = 'select name_municip, desertion_no, desertion_perc, me_cobertura_neta, '+ \
-                    new_feature_name + ' from cluster_master_table_by_municipio; '
-        df_temp = def_data.runQuery(sql_query)
-        for col in ['desertion_no', 'me_cobertura_neta', 'desertion_perc', new_feature_name]:
-            df_temp[col] = df_temp[col].astype(np.float64)
-        df_temp.rename(columns={
-            new_feature_name: new_feature_label,
-            'desertion_no':'# Dropouts','desertion_perc':'% Dropouts','me_cobertura_neta':'Coverage'
-        }, inplace=True)
-        print(df_temp.head())
-        new_scatter = px.scatter(df_temp, x=new_feature_label, y='% Dropouts')
-        return new_scatter
+        if feature_id == cl_scatter_feature:
+            print('Not necessary to update data frame')
+        else: # Update the data frame with the selected feature.
+            cl_scatter_feature = feature_id
+            new_feature_name = df_vars[df_vars['var_id'] == str(feature_id)][['var_name']].reset_index()['var_name'][0]
+            cl_feature_label = df_vars[df_vars['var_id'] == str(feature_id)][['Feature']].reset_index()['Feature'][0]
+            sql_query = 'select name_municip, desertion_no, desertion_perc, me_cobertura_neta, ' + \
+                        'cobertura_rank, desercion_rank, deser_perc_rank, '+ \
+                        new_feature_name + ' from cluster_master_table_by_municipio; '
+            df_scatter = def_data.runQuery(sql_query)
+            for col in ['desertion_no', 'me_cobertura_neta', 'desertion_perc', new_feature_name]:
+                df_scatter[col] = df_scatter[col].astype(np.float64)
+            df_scatter.rename(columns={
+                'name_municip':'Municipio',new_feature_name: cl_feature_label,
+                'desertion_no':'# Dropouts','desertion_perc':'% Dropouts',
+                'me_cobertura_neta':'Coverage', 'deser_perc_rank':'Cluster',
+                "cobertura_rank": "Coverage Type", "desercion_rank": "Desertion Type"
+            }, inplace=True)
+            print(df_scatter.head())
+    # 2. Filter data according to selected cluster.
+    if cluster_value is None: # If no filter, then use a copy of data.
+        df_scatter_final = df_scatter
+    else:
+        df_scatter_final = df_scatter[df_scatter['Cluster']==cluster_value]
 
+    # 3. Determine the scale o x-axis: linear or logarithmic
+    cl_scale = True if log_value == 'log' else False
+
+    # 4. Make new scatter plot
+    new_scatter = px.scatter(df_scatter_final, x=cl_feature_label, y=y_value, log_x=cl_scale)
+
+    # 5. Make new box plot
+    new_box = px.box(df_scatter_final, x="Coverage Type", y=cl_feature_label, color="Desertion Type",log_y=cl_scale,
+                         points="all", title="Box plot of "+cl_feature_label, hover_data=["Municipio"])
+    return [new_scatter,new_box]
 
 # ------------------------------
 # 14. Layout
