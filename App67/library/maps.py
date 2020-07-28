@@ -68,6 +68,7 @@ with open('data/MGN_MPIO_POLITICO.json') as geo:
 
 with open('data/MGN_DPTO_POLITICO.json') as f:
      DEP_json = json.loads(f.read())
+MUN2_json = DEP_json.copy()
 
 map_fig = px.choropleth_mapbox(df_desertion,
             geojson=DEP_json,
@@ -106,6 +107,7 @@ def build_chart(depto_val,*args):
         if depto_val is None:
             # 3.2.2.1 Query desired variable
             # ------------------------------
+            selected_var="desertion_perc"
             sql_query = 'select code_dept, name_dept, avg(' + selected_var + ') as ' + selected_var + ' ' + \
                 'from master_table_by_municipio ' + \
                 'where year_cohort = 2019 ' + \
@@ -136,19 +138,27 @@ def build_chart(depto_val,*args):
 
             df_var_by_dpto = def_data.runQuery(sql_query)
             df_var_by_dpto[selected_var] = df_var_by_dpto[selected_var].astype(np.float64)
+            
+            
+            # 3.2.3.2 Filtering the Departament
+            # ------------------------------
+            MUN2_json['features'] = [city for city in MUN_json['features'] if city['properties']['DPTO_CCDGO'] == depto_val]
+            center_x=MUN2_json['features'][0]['geometry']['coordinates'][0][0][0]
+            center_y=MUN2_json['features'][0]['geometry']['coordinates'][0][0][1]
+            new_center=dict(lat=center_y, lon=center_x)
 
-            # 3.2.3.2 Define new map
+            # 3.2.3.3 Define new map
             # ------------------------------
             #city_name = df_var_by_dpto['code_dept'].unique().reset_index()['code_dept'][0]
             new_map = px.choropleth_mapbox(df_var_by_dpto,
-                     geojson=MUN_json,
+                     geojson=MUN2_json,
                      locations='code_municip',
                      color=selected_var,
                      featureidkey="properties.MPIO_CCNCT",
-                     zoom=5,
+                     zoom=6,
                      hover_name="name_municip",
                      mapbox_style="carto-positron",
-                     center={"lat": 4.94, "lon": -73.77},
+                     center=new_center,
                      color_continuous_scale="blues",
                      )
             new_map.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
