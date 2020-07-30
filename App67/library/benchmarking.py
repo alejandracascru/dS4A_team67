@@ -151,21 +151,37 @@ ranking_table = dt.DataTable(
     #    }]
 )
 
-# ----------------efficiency--------------
+# ------------------------------
 # 5. DMU Groups
 # ------------------------------
+refset_data = {'Reference Set': [['La Victoria', 'Tado'],
+                  ['Tado','Bogota, D.C.','Sogamoso'],
+                  ['Tado','Sogamoso'],
+                  ['Bogota, D.C.','Sogamoso','Soledad'],
+                  ['Sogamoso','Soledad'],
+                  ['Bogota, D.C.','Soledad'],
+                  ['La Victoria', 'Tado','Bogota, D.C.']],
+        '# Municipalities': ['813 (75%)','121 (11%)','107 (10%)','22 (2%)','22 (2%)','22 (0%)','22 (0%)']}
+
+refset_df = pd.DataFrame(refset_data, columns = ['Reference Set', '# Municipalities'])
+
 group_table = dt.DataTable(
-    id='table',
-    columns=[{"name": i, "id": i} for i in df_dropout_efficiency.columns],
-    data=df_dropout_efficiency.to_dict('records'),
-    style_table={'height': '280px', 'overflowY': 'auto'}
+    id='benchmarking_group_table',
+    columns=[{"name": i, "id": i} for i in refset_df.columns],
+    data=refset_df.to_dict('records'),
+    style_table={'height': '280px', 'overflowY': 'auto'},
+    style_cell={
+            'whiteSpace': 'normal',
+            'height': 'auto'}
 )
 
 # ------------------------------
 # 6. Slack/Waste
 # ------------------------------
+inputgraph_data = {'Label': ['# Students'],'% Slack': [0]}
+bargraph_df = pd.DataFrame(inputgraph_data, columns = ['Label', '% Slack'])
 
-slack_graph = px.histogram(df_dropout_efficiency, x="efficiency", height=200)
+slack_graph = px.bar(bargraph_df, x="Label", y="% Slack", height=200)
 slack_graph.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
 
 # ------------------------------
@@ -182,7 +198,11 @@ efficiency_def = html.Div(
 # 8. Callback and DEA
 # ------------------------------
 @app.callback(
-    [Output("benchmarking_map", "figure"),Output("benchmarking_rank_table","data")], [Input("DEA-button", "n_clicks")]
+    [Output("benchmarking_map", "figure"),
+     Output("benchmarking_rank_table","data"),
+     Output("benchmarking_group_table","data"),
+     Output("slack_graph", "figure")],
+    [Input("DEA-button", "n_clicks")]
 )
 def on_button_click(n):
     if n is not None:
@@ -196,7 +216,7 @@ def on_button_click(n):
 
         # 1.2 Get variable name from SQL table var_definition.
         df_var_name = def_data.runQuery(
-            'select name from public.var_definition where var_id in (' + var_list + ');')
+            'select name, label from public.var_definition where var_id in (' + var_list + ');')
 
         # 2. Define the SQL query.
         benchmarking_sql_query = ''            # SQL query.
@@ -257,6 +277,38 @@ def on_button_click(n):
         ef["rank"] = ef["efficiency"].rank(ascending=False, method='min')
         ef['efficiency_percent'] = ef['efficiency'].astype(float).map("{:.1%}".format)
 
+        # 5.2 Efficient Units and Reference set
+        ef_dmu = ef[ef['efficiency']>=1][['dmu','muni']]
+        ref_set = pd.DataFrame(ef[ef['efficiency'] < 1][['reference_set']].reset_index()['reference_set'].value_counts()).reset_index()
+
+        # From ref_set gets names and takeout non productive units
+        refset_data = []
+        for rs in ref_set['index']:
+            line_set = []
+            for dmu in rs:
+                if dmu in list(ef_dmu['dmu']):
+                    line_set.append(ef_dmu[ef_dmu['dmu'] == dmu][['muni']].reset_index()['muni'][0])
+            refset_data.append(line_set)
+
+        # This is the new Reference Set to print on screen.
+        refset_df = pd.DataFrame({'Reference Set': refset_data,
+                                  '# Municipalities': list(ref_set['reference_set'])},
+                                 columns=['Reference Set', '# Municipalities'])
+
+        new_group_data = refset_df.to_dict('records')
+
+        # 5.3 Slack Variables count
+        slack = []
+        for sl in ef['slack']:
+            slack.extend(sl)
+        slack_data = (pd.DataFrame(slack, columns=['Slack Count']))['Slack Count'].value_counts().reset_index()
+        slack_data = slack_data.merge(df_var_name, left_on='index', right_on='name', how='left')
+        slack_data = slack_data.rename(columns={'label': 'Feature'})
+
+        new_slack_graph = px.bar(slack_data, x="Feature", y="Slack Count", height=200)
+        new_slack_graph.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
+
+
         # 6. Creates new map
         # 6.1 Loads JSON file
         # # ------------------------------
@@ -297,9 +349,11 @@ def on_button_click(n):
 
     else:
         new_Map = EF_Map
-        new_Rank_data = group_table.data
+        new_Rank_data = ranking_table.data
+        new_group_data = group_table.data
+        new_slack_graph = slack_graph
 
-    return [new_Map,new_Rank_data]
+    return [new_Map,new_Rank_data,new_group_data,new_slack_graph]
 
 # ------------------------------
 # 9. Layout
@@ -322,4 +376,5 @@ benchmarking = html.Div([
 # 2.1 Rank table, when click show map hover.
 #
 # TODO: fix initial efficiency data
+# TODO: change query to cluster_table
 
