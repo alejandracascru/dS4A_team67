@@ -13,8 +13,8 @@ tab_bar = html.Div(className="tab-bar",
         dbc.Tabs(
             [
                 dbc.Tab(label="General", tab_id="tab-1"),
-                dbc.Tab(label="Mapas", tab_id="tab-2"),
-                dbc.Tab(label="Estadísticas", tab_id="tab-3"),
+                dbc.Tab(label="Maps", tab_id="tab-2"),
+                dbc.Tab(label="Statistics", tab_id="tab-3"),
                 dbc.Tab(label="Clustering", tab_id="tab-4"),
                 dbc.Tab(label="Benchmarking", tab_id="tab-5"),
             ],

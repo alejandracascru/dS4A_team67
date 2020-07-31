@@ -105,7 +105,7 @@ df_dropout_efficiency['efficiency'] = df_dropout_efficiency['efficiency'].astype
 # ------------------------------
 # 3.1 Loads JSON file
 # ------------------------------
-with open('data/municipios95.json') as geo:
+with open('data/municipios_1mn.json') as geo:
     munijson = json.loads(geo.read())
 
 # 3.2 Define initial map properties
@@ -314,7 +314,7 @@ def on_button_click(n):
         # # ------------------------------
         map_url = ''
         if sidebar_benchmarking.area_array is None:
-            map_url = 'data/municipios95.json'
+            map_url = 'data/municipios_1mn.json'
         elif sidebar_benchmarking.area_array == 'Amazonica':
             map_url = 'data/amazonica90.json'
         elif sidebar_benchmarking.area_array == 'Andina':

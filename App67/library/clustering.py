@@ -173,7 +173,7 @@ df_vars.rename(columns = {"weight": "Weight",'label':'Feature'}, inplace = True)
 # ------------------------------
 # 3.1 Loads JSON file
 # ------------------------------
-with open('data/municipios95.json') as geo:
+with open('data/municipios_1mn.json') as geo:
     munijson = json.loads(geo.read())
 
 # 3.2 Define initial map properties
@@ -199,8 +199,9 @@ cluster_map = html.Div([dcc.Graph(figure=cl_map, id='cluster_map')],style=STYLE_
 # ------------------------------
 #  4. Figure 3D
 # ------------------------------
-cl_scatter = px.scatter_3d(df_clusters, x="# Dropouts", y="Coverage", z="% Dropouts",
-                           color="Cluster",hover_name="Municipio",
+size = [4 for i in range(df_clusters.shape[0])]
+cl_scatter = px.scatter_3d(df_clusters, x="# Dropouts", y="Coverage", z="% Dropouts", log_x=True,
+                           color="Cluster",hover_name="Municipio", size=size,
                            opacity=0.5)
 cluster_figure_3D = html.Div([dcc.Graph(figure=cl_scatter, id='cluster_map')],style=STYLE_CLUSTER_FIGURE3D)
 # ------------------------------
