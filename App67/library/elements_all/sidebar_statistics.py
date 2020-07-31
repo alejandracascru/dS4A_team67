@@ -23,7 +23,7 @@ from library import def_data
 # 1. SIDEBAR STYLE
 # ------------------------------
 SIDEBAR_STYLE = {
-    "position": "fixed",
+    "position": "absolute",
     "top": '140px',
     "left": 0,
     "bottom": 0,
@@ -122,10 +122,43 @@ def toggle_accordion(*args):
 # ------------------------------
 # 5. SIDEBAR LAYOUT
 # ------------------------------
+
+dropdown_variables = dcc.Dropdown(
+    id='xy-dropdown',
+    options=[
+        {'label': 'X variable', 'value': 'x_selected'},
+        {'label': 'Y variable', 'value': 'y_selected'}
+    ],
+    value='x_selected'
+)
+
+dropdown_years = dcc.Dropdown(
+    id='year-dropdown',
+    options=[
+        {'label': '2011', 'value': 2011},
+        {'label': '2012', 'value': 2012},
+        {'label': '2013', 'value': 2013},
+        {'label': '2014', 'value': 2014},
+        {'label': '2015', 'value': 2015},
+        {'label': '2016', 'value': 2016},
+        {'label': '2017', 'value': 2017},
+        {'label': '2018', 'value': 2018},
+        {'label': '2019', 'value': 2019},
+
+    ],
+    value=2019
+)
+
+
+
 sidebar = html.Div(
     [
         dbc.Button("Compare Variables", id='stats_DEA-button', block=True, color='primary'),
-        html.P('Select 2 Variables'),
+        html.P('Select Year:'),
+        dropdown_years,
+        html.P(' '),
+        html.P('Select X Variable to Compare:'),
+        # dropdown_variables,
         html.Hr(),
         accordion,
     ],
