@@ -16,7 +16,7 @@ import plotly.express as px
 from plotly.subplots import make_subplots
 
 ##############################
-# Load Data
+# 1. Load Data
 ##############################
 df_all = pd.read_csv('data/df_all.csv')
 
@@ -76,11 +76,31 @@ def get_correlation_df(df_in, var1, var2, year):
     return df_out
 
 
+def get_municipalities(df_in):
+    df_names = df_in['name_dept'] + '-' + df_in['name_municip'] + '--' + df_in['code_municip'].apply(str)
+    array_names = df_names.unique()
+    array_options = []
+    for i in array_names:
+        array_temp = i.split('--')
+        label_temp = array_temp[0]
+        value_temp = array_temp[1]
+        array_options.append({
+            'label': label_temp,
+            'value': int(value_temp)})
+    return array_options
+
 ##############################
 # Figures
 ##############################
 
-def make_donut_desertion_fig(label_desercion, derc_perc):
+
+def make_donut_desertion_fig(df_in_m, selected_year, selected_code):
+    label_desercion, derc_perc = get_desercion_variables(
+        df_in=df_in_m,
+        year=selected_year,
+        in_mun_code=selected_code,
+    )
+
     labels = ['Transición', 'Primaria', 'Media', 'Secundaria']
     fig = go.Figure(data=[go.Pie(labels=labels,
                                  values=derc_perc,
@@ -88,11 +108,18 @@ def make_donut_desertion_fig(label_desercion, derc_perc):
                                  hoverinfo="label+value"
                                  )
                                  ])
-    fig.update_layout(title_text="Total School Population Drop Out: " + label_desercion)
+    fig.update_layout(title_text="Total School Population Desertion: " + label_desercion)
     return fig
 
 
-def make_bar_cobertura_fig(value_cobertura, cob_perc):
+def make_bar_cobertura_fig(df_in_c, selected_year, selected_code):
+
+    value_cobertura, cob_perc = get_cobertura_variables(
+        df_in=df_in_c,
+        year=selected_year,
+        in_mun_code=selected_code,
+    )
+
     labels = ['Transición', 'Primaria', 'Media', 'Secundaria']
     fig = go.Figure(data=[go.Bar(x=labels,
                                  y=cob_perc,
@@ -118,56 +145,34 @@ def figure_desertion_year(df_all, selected_code):
     })
 
     result_fig.update_layout(
-        title_text="School Drop Out Percentage vs Years",
+        title_text="School Desertion Percentage vs Years",
         xaxis_title="Year",
-        yaxis_title="School Drop Out [%]",
+        yaxis_title="School Desertion [%]",
     )
 
     return result_fig
 
 
-##############################
-# Call Figures
-##############################
-selected_code = 5001
-selected_year = 2019
+def figure_cobertura_year(df_all, selected_code):
+    df_mun = df_all[df_all['code_municip'] == selected_code]
+    result_fig = go.Figure(data=go.Scatter(x=df_mun['year_cohort'],
+                                           y=df_mun['me_cobertura_neta']
+                                           ),
+                           )
 
-df_mun = df_all[df_all['code_municip'] == selected_code]
-name_municipio = df_mun.iloc[[0]]['name_dept'].to_numpy()
-name_depto = df_mun.iloc[[0]]['name_municip'].to_numpy()
+    result_fig.update_layout({
+        'plot_bgcolor': 'rgba(0, 0, 0, 0)',
+        'paper_bgcolor': 'rgba(0, 0, 0, 0)',
+    })
 
-var1_in = 'desertion_perc'
-var2_in = 'me_tasa_matriculacion_5_16'
+    result_fig.update_layout(
+        title_text="School Population Coverage vs Years",
+        xaxis_title="Year",
+        yaxis_title="School Population Coverage [%]",
+    )
 
-# Pie Figure
-label_desercion_in, derc_perc_in = get_desercion_variables(
-    df_in=df_all,
-    year=selected_year,
-    in_mun_code=selected_code,
-)
+    return result_fig
 
-PieFig = make_donut_desertion_fig(
-    label_desercion=label_desercion_in,
-    derc_perc=derc_perc_in,
-)
-
-# Cobertura Figure
-value_cobertura_in, cob_perc_in = get_cobertura_variables(
-    df_in=df_all,
-    year=selected_year,
-    in_mun_code=selected_code,
-)
-
-BarFig = make_bar_cobertura_fig(
-    cob_perc=cob_perc_in,
-    value_cobertura=value_cobertura_in
-)
-
-# Years figure
-Years_fig = figure_desertion_year(
-    df_all=df_all,
-    selected_code=selected_code
-)
 
 
 ##############################
@@ -190,36 +195,41 @@ sidebar_groups = sidebar_statistics.df_vars['group_id'].unique()
 sidebar_vars = sidebar_statistics.df_vars['var_id'].unique()
 df_vars_here = sidebar_statistics.df_vars
 
-# @app.callback(
-#     Output(component_id='test-output', component_property='children'),
-#     [Input(f'stats_checklist_{i}', 'value') for i in sidebar_groups],
-#     [State(f"stats_collapse-{i}", "is_open") for i in sidebar_groups],
-#
-# )
-# def update_output_div(*args):
-#     values = args[0:int(len(args)/2)]
-#     is_open = args[int(len(args)/2):]
-#     output = ''
-#     label = ''
-#     for i in range(len(values)):
-#         check_vars = values[i]
-#         temp_is_open = is_open[i]
-#         if check_vars is not None and temp_is_open:
-#             output = check_vars
-#             label_temp = df_vars_here[df_vars_here['var_id'] == output]['name'].to_numpy()
-#             label = str(label_temp[0])
-#     return 'Output: {}'.format(label)
-
 
 @app.callback(
     Output('Corr_fig', 'figure'),
-    [Input(f'stats_checklist_{i}', 'value') for i in sidebar_groups],
+    [
+        Input('demo-dropdown', 'value'),
+        # Input('xy-dropdown', 'value'),
+        Input('year-dropdown', 'value'),
+
+        Input('cluster_radio_log_x', 'value'),
+        Input('cluster_radio_log_y', 'value'),
+
+        Input('stats_checklist_1', 'value'),
+        Input('stats_checklist_2', 'value'),
+        Input('stats_checklist_3', 'value'),
+        Input('stats_checklist_4', 'value'),
+        Input('stats_checklist_5', 'value'),
+        Input('stats_checklist_6', 'value'),
+        Input('stats_checklist_7', 'value'),
+        Input('stats_checklist_8', 'value'),
+
+     ],
     [State(f"stats_collapse-{i}", "is_open") for i in sidebar_groups],
 )
 def figure_correlation(*args):
-    # n_args = len(args)
-    values = args[0:int(len(args)/2)]
-    is_open = args[int(len(args)/2):]
+    n_groups = len(sidebar_groups)+1
+    reg_dept = args[0]
+    xy_selection = 'x_selected' # args[1]
+    year_selection = args[1]
+    log_value_x = args[2]
+    log_value_y = args[3]
+    values = args[4:12]
+    is_open = args[12:]
+
+    log_scale_x = True if log_value_x == 'log' else False
+    log_scale_y = True if log_value_y == 'log' else False
 
     def selected_var(values, is_open):
         output = ''
@@ -236,21 +246,27 @@ def figure_correlation(*args):
             axis_l = str(axis_temp[0])
         else:
             label = 'sa_punt_matematicas'
-            axis_l = 'Math Score - National Test'
+            axis_l = 'Math Score - Saber Pro'
         return label, axis_l
 
-    var1_in = 'desertion_perc'
-    var2_in, var2_l = selected_var(values, is_open)
+    var_x_in = 'sa_punt_matematicas'
+    var_x_l = 'National Test - Saber Pro Score'
+    var_y_in = 'desertion_perc'
+    var_y_l = 'School Desertion Percentage [%]'
+    if xy_selection =='x_selected':
+        var_x_in, var_x_l = selected_var(values, is_open)
+    # else:
+    #     var_y_in, var_y_l = selected_var(values, is_open)
 
     scatter_df = get_correlation_df(
         df_in=df_all,
-        var1=var1_in,
-        var2=var2_in,
-        year=selected_year
+        var1=var_x_in,
+        var2=var_y_in,
+        year=year_selection,
     )
 
     result_fig = go.Figure()
-    reg_dept = 'dept'
+
     if reg_dept == 'region':
         filter_selection = 'reg_code'
         label_dictionary = {
@@ -277,22 +293,98 @@ def figure_correlation(*args):
     for r in regions:
         temp_df = scatter_df[scatter_df[filter_selection] == r]
         result_fig.add_trace(go.Scatter(
-            x=temp_df[var1_in],
-            y=temp_df[var2_in],
+            x=temp_df[var_x_in],
+            y=temp_df[var_y_in],
             text=temp_df['region'] + ' - ' + temp_df['name_dept'] + ' - ' + temp_df['name_municip'],
             name=label_dictionary[str(r)],
             mode='markers',
             marker=dict(
-                size=16,
+                size=8,
             )
         ))
 
     result_fig.update_layout(
         title='Correlation Selected Variables',
-        xaxis_title="School Drop Out Percentage [%]",
-        yaxis_title=var2_l,
+        xaxis_title=var_x_l,
+        yaxis_title=var_y_l,
     )
+    if log_scale_x:
+        result_fig.update_xaxes(
+            type="log"
+        )
+    if log_scale_y:
+        result_fig.update_yaxes(
+            type="log"
+        )
     return result_fig
+
+
+@app.callback(
+    Output('years_desertion_fig', 'figure'),
+    [
+        Input('drop-municipality', 'value'),
+     ],
+)
+def figure_years_desertion(*args):
+    code_municip = args[0]
+    Years_fig = figure_desertion_year(
+        df_all=df_all,
+        selected_code=code_municip
+    )
+    return Years_fig
+
+
+@app.callback(
+    Output('years_cobert_fig', 'figure'),
+    [
+        Input('drop-municipality', 'value'),
+     ],
+)
+def figure_years_desertion(*args):
+    code_municip = args[0]
+    fig = figure_cobertura_year(
+        df_all=df_all,
+        selected_code=code_municip
+    )
+    return fig
+
+
+@app.callback(
+    Output('Pie_d', 'figure'),
+    [
+        Input('drop-municipality', 'value'),
+        Input('year-dropdown-m', 'value'),
+     ],
+)
+def figure_donut_desertion(*args):
+    code_municip = args[0]
+    year_municip = args[1]
+    fig = make_donut_desertion_fig(
+        df_in_m=df_all,
+        selected_year=year_municip,
+        selected_code=code_municip,
+
+    )
+    return fig
+
+
+@app.callback(
+    Output('Bar_c', 'figure'),
+    [
+        Input('drop-municipality', 'value'),
+        Input('year-dropdown-m', 'value'),
+     ],
+)
+def figure_bar_cobertura(*args):
+    code_municip = args[0]
+    year_municip = args[1]
+    fig = make_bar_cobertura_fig(
+        df_in_c=df_all,
+        selected_year = year_municip,
+        selected_code=code_municip
+    )
+    return fig
+
 
 
 ##############################
@@ -306,6 +398,51 @@ dropdown_region = dcc.Dropdown(
         {'label': 'Departments', 'value': 'depto'}
     ],
     value='region'
+)
+
+dropdown_municipalities = dcc.Dropdown(
+    id='drop-municipality',
+    options=get_municipalities(df_all),
+    value=5001,
+    style={"width": "400px"}
+)
+
+cluster_radio_log = dcc.RadioItems(
+    options=[
+        {'label': '   Linear   ', 'value': 'linear'},
+        {'label': '   Log(x)   ', 'value': 'log'}
+    ],
+    value='linear',
+    labelStyle={'display': 'inline-block'},
+    id='cluster_radio_log_x'
+)
+
+cluster_radio_log_y = dcc.RadioItems(
+    options=[
+        {'label': '   Linear   ', 'value': 'linear'},
+        {'label': '   Log(x)   ', 'value': 'log'}
+    ],
+    value='linear',
+    labelStyle={'display': 'inline-block'},
+    id='cluster_radio_log_y'
+)
+
+dropdown_years_municipalities = dcc.Dropdown(
+    id='year-dropdown-m',
+    options=[
+        {'label': '2011', 'value': 2011},
+        {'label': '2012', 'value': 2012},
+        {'label': '2013', 'value': 2013},
+        {'label': '2014', 'value': 2014},
+        {'label': '2015', 'value': 2015},
+        {'label': '2016', 'value': 2016},
+        {'label': '2017', 'value': 2017},
+        {'label': '2018', 'value': 2018},
+        {'label': '2019', 'value': 2019},
+
+    ],
+    value=2019,
+    style={"width": "300px"}
 )
 
 
@@ -327,22 +464,53 @@ explore_municipio = html.Div(
         dbc.Row(
             [
                 dbc.Col(
-                    html.H3("Municipality Statistics", style={"left": "10px"}),
+                    html.H3("Municipality Statistics", style={"left": "40px"}),
                 ),
             ]
         ),
 
+        dbc.Row(html.Div(html.Br())),
+
+        dbc.Row([
+            dbc.Col(
+                html.Div("Select Municipality",  style={"width": "200px"}), width=2
+            ),
+            dbc.Col(
+                dropdown_municipalities,
+            ),
+        ]
+        ),
+
         dbc.Row(
             [
-                dbc.Row(
-                    dcc.Graph(figure=Years_fig, id='Years_d'),
-                ),
                 dbc.Row([
                     dbc.Col(
-                        dcc.Graph(figure=PieFig, id='Pie_d'),
+                        dcc.Graph(id='years_cobert_fig'),
                     ),
                     dbc.Col(
-                        dcc.Graph(figure=BarFig, id='Bar_c'),
+                        dcc.Graph(id='years_desertion_fig'),
+                    ),
+                ]),
+
+                dbc.Row(html.Div(html.Br())),
+
+                dbc.Row([
+                    dbc.Col(
+                        html.Div("Explore Details for Year"), style={"left": "30px", "width": "200px", "text-align": "center"},
+                    ),
+                    dbc.Col(
+                        dropdown_years_municipalities, style={"left": "100px", "width": "300px"}
+                    ),
+                ]
+                ),
+                dbc.Row(html.Div(html.Br())),
+
+                dbc.Row([
+                    dbc.Col(
+                        dcc.Graph(id='Bar_c'),
+                    ),
+                    dbc.Col(
+                        dcc.Graph(id='Pie_d'),
                     ),
                 ]),
             ],
@@ -362,8 +530,26 @@ explore_correlation = html.Div(
             ),
         ]),
 
+        dbc.Row(html.Div(html.Br())),
+
+        dbc.Row([
+            dbc.Col([
+                html.Div("Select Scale X-axes"),
+                cluster_radio_log,
+            ]
+            ),
+            dbc.Col([
+                html.Div("Select Scale Y-axes"),
+                cluster_radio_log_y,
+            ]
+            ),
+        ]
+        ),
+
+
         dbc.Row(
             dcc.Graph(id='Corr_fig'),
+            style={"left": "100px", "width": "100%"}
         ),
     ]
 )
@@ -379,6 +565,8 @@ statistics = html.Div(
                     id='test-output',
                     style={"top": "10px"},
                     ),
+
+                dbc.Row(html.Div(html.Br())),
 
                 dbc.Row(explore_correlation),
 
