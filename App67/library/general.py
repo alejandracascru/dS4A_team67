@@ -35,10 +35,10 @@ STYLE_DESCRIPTION = {
 # 1.2 Background
 GENERAL_BACKGROUND = {
     "position": "absolute",
-    "width": "20%",
-    "height": "550px",
+    "width": "25%",
+    "height": "650px",
     #"right": "1%",
-    'left': '75%',
+    'left': '80%',
     "top": "170px",
     "background-image": 'url(/assets/img/education2.png)',
     'background-repeat': 'no-repeat'
@@ -48,42 +48,42 @@ GENERAL_BACKGROUND = {
 PHOTO_1 = {
     "position": "absolute",
     "left": "8.5%",
-    "top": "470px",
+    "top": "480px",
     "width": "9.5%"
 }
 # 1.4 Photo 2
 PHOTO_2 = {
     "position": "absolute",
     "left": "21%",
-    "top": "470px",
+    "top": "480px",
     "width": "8%"
 }
 # 1.5 Photo 3
 PHOTO_3 = {
     "position": "absolute",
     "left": "32%",
-    "top": "470px",
+    "top": "480px",
     "width": "8%"
 }
 # 1.6 Photo 4
 PHOTO_4 = {
     "position": "absolute",
     "left": "43%",
-    "top": "470px",
+    "top": "480px",
     "width": "8.5%"
 }
 # 1.7 Photo 5
 PHOTO_5 = {
     "position": "absolute",
     "left": "54%",
-    "top": "470px",
+    "top": "480px",
     "width": "8%"
 }
 # 1.8 Photo 6
 PHOTO_6 = {
     "position": "absolute",
     "left": "65%",
-    "top": "470px",
+    "top": "480px",
     "width": "8%"
 }
 # 1.9 background_ph
@@ -102,7 +102,7 @@ NAME_1 = {
     'text-align': 'center',
     "position": "absolute",
     "left": "7%",
-    "top": "578px",
+    "top": "588px",
     "width": "13%"
 }
 NAME_2 = {
@@ -113,7 +113,7 @@ NAME_2 = {
     'text-align': 'center',
     "position": "absolute",
     "left": "20%",
-    "top": "578px",
+    "top": "588px",
     "width": "10%"
 }
 NAME_3 = {
@@ -124,7 +124,7 @@ NAME_3 = {
     'text-align': 'center',
     "position": "absolute",
     "left": "31%",
-    "top": "578px",
+    "top": "588px",
     "width": "10%"
 }
 NAME_4 = {
@@ -135,7 +135,7 @@ NAME_4 = {
     'text-align': 'center',
     "position": "absolute",
     "left": "42%",
-    "top": "578px",
+    "top": "588px",
     "width": "10%"
 }
 NAME_5 = {
@@ -146,7 +146,7 @@ NAME_5 = {
     'text-align': 'center',
     "position": "absolute",
     "left": "53%",
-    "top": "578px",
+    "top": "588px",
     "width": "10%"
 }
 NAME_6 = {
@@ -157,7 +157,7 @@ NAME_6 = {
     'text-align': 'center',
     "position": "absolute",
     "left": "66%",
-    "top": "578px",
+    "top": "588px",
     "width": "5%"
 }
 
