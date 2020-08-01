@@ -38,7 +38,7 @@ from library import def_data
 STYLE_CLUSTER_MAP = {
     "position": "absolute",
     "width": "42%",
-    "height": "420px",
+    "height": "470px",
     "left": "7%",
     "top": "140px",
     "border": "1px solid #e7eff6",
@@ -47,10 +47,10 @@ STYLE_CLUSTER_MAP = {
 # 1.2 Map Styles
 STYLE_CLUSTER_FIGURE3D = {
     "position": "absolute",
-    "width": "42%",
-    "height": "400px",
-    "right": "7%",
-    "top": "240px",
+    "width": "86%",
+    "height": "450px",
+    "left": "7%",
+    "top": "620px",
     "border": "1px solid #e7eff6",
     "border-radius": "10px"
 }
@@ -59,11 +59,11 @@ STYLE_CLUSTER_FIGURE3D = {
 STYLE_CLUSTER_FIRST_TEXT = {
     "position": "absolute",
     "width": "42%",
-    "height": "90px",
+    "height": "470px",
     "right": "7%",
-    "top": "140px",
-    "border": "1px solid #e7eff6",
-    "border-radius": "10px"
+    "top": "140px"#,
+    #"border": "1px solid #e7eff6",
+    #"border-radius": "10px"
 }
 
 # 1.4 Histogram
@@ -72,7 +72,7 @@ STYLE_CLUSTER_HISTOGRAM = {
     "width": "42%",
     "height": "500px",
     "left": "7%",
-    "top": "570px",
+    "top": "1080px",
     "border": "1px solid #e7eff6",
     "border-radius": "10px",
     'overflowY': 'scroll'
@@ -82,11 +82,11 @@ STYLE_CLUSTER_HISTOGRAM = {
 STYLE_CLUSTER_FEATURES = {
     "position": "absolute",
     "width": "42%",
-    "height": "420px",
+    "height": "500px",
     "right": "7%",
-    "top": "650px",
-    "border": "1px solid #e7eff6",
-    "border-radius": "10px"
+    "top": "1080px"#,
+    #"border": "1px solid #e7eff6",
+    #"border-radius": "10px"
 }
 
 # 1.6 Dropdown
@@ -95,7 +95,7 @@ STYLE_CLUSTER_DROPDOWN = {
     "width": "42%",
     "height": "60px",
     "left": "7%",
-    "top": "1080px",
+    "top": "1600px",
     "border": "1px solid #e7eff6",
     "border-radius": "10px"
 }
@@ -106,7 +106,7 @@ STYLE_CLUSTER_SCATTERPLOT = {
     "width": "42%",
     "height": "450px",
     "left": "7%",
-    "top": "1150px",
+    "top": "1670px",
     "border": "1px solid #e7eff6",
     "border-radius": "10px"
 }
@@ -115,9 +115,9 @@ STYLE_CLUSTER_SCATTERPLOT = {
 STYLE_CLUSTER_BOXPLOT= {
     "position": "absolute",
     "width": "42%",
-    "height": "350px",
+    "height": "440px",
     "right": "7%",
-    "top": "1080px",
+    "top": "1600px",
     "border": "1px solid #e7eff6",
     "border-radius": "10px"
 }
@@ -126,11 +126,11 @@ STYLE_CLUSTER_BOXPLOT= {
 STYLE_CLUSTER_SECOND_TEXT = {
 "position": "absolute",
     "width": "42%",
-    "height": "160px",
+    "height": "200px",
     "right": "7%",
-    "top": "1440px",
-    "border": "1px solid #e7eff6",
-    "border-radius": "10px"
+    "top": "2050px"#,
+    #"border": "1px solid #e7eff6",
+    #"border-radius": "10px"
 }
 
 # 1.10 Second text
@@ -139,7 +139,7 @@ STYLE_CLUSTER_END_SPACE = {
     "width": "42%",
     "height": "20px",
     "right": "7%",
-    "top": "1600px"
+    "top": "2250px"
 }
 # ------------------------------
 # 2. SQL Queries
@@ -207,7 +207,18 @@ cluster_figure_3D = html.Div([dcc.Graph(figure=cl_scatter, id='cluster_map')],st
 # ------------------------------
 #  5. First text
 # ------------------------------
-cluster_first_text = html.Div(html.P('First text -> Resultado del test Kruskal'),style=STYLE_CLUSTER_FIRST_TEXT)
+paragraph01 = '''
+A K-means clustering algorithm was applied to group the municipalities using our interest variables: the dropout rate, the number of students that leave the school and the Net Educational Coverage. We found four clusters:
+
+`**Cluster 1 (LD-LC)**`: Municipalities with low desertion and low coverage. It is formed by 270 towns. We see that many of the municipalities of this group are highly rural, and spread across many regions.
+
+`Cluster 2 (LD-HC)`: Municipalities with low desertion and high coverage. 355 towns belong to this group.
+
+**Cluster 3 (HD-LC)**: Municipalities with high desertion and low coverage. Inside of this cluster, there are 242 Towns. In this cluster, we find many municipalities that have had less presence of the government and are affected by poverty and armed conflict.
+
+**Cluster 4 (HD-HC)**: Municipalities with high desertion and high coverage. The size of this group is 253. Many of the departmental capitals and main cities are represented in this cluster.
+'''
+cluster_first_text = html.Div(dcc.Markdown(paragraph01),style=STYLE_CLUSTER_FIRST_TEXT)
 # ------------------------------
 #  6. Histogram
 # ------------------------------
@@ -218,7 +229,22 @@ cluster_histogram = html.Div([dcc.Graph(figure=cluster_hist, id='cluster_hist')]
 # ------------------------------
 #  7. Features table
 # ------------------------------
-cluster_features = html.Div(html.P('Features selection'),style=STYLE_CLUSTER_FEATURES)
+paragraph2_01 = 'To obtain the variables that are mostly related to the dropout rate and the coverage percentage, ' + \
+             'we executed three machine learning algorithms for classification:'
+list2_01 = 'Decision tree: Conditional control algorithm based on a chi-square test to classify a categorical ' + \
+           'phenomenon (in our case, the clusters found).'
+list2_02 = 'Random Forest: Ensemble learning method based on the implementation of multiple decision trees to ' + \
+            'determine the group which a municipality belongs to.'
+list2_03 = 'XG-Boost: Ensemble of weak prediction models (in this case, decision trees) to accurately find the ' + \
+           'predicted category of a cluster for a given municipality.'
+paragraph2_02 = 'Finally, to obtain the weighted importance of each analyzed attribute, we combined the importances ' + \
+                'provided by the three methodologies. By using this approach, we guarantee that the variables chosen ' + \
+                'are the ones that best explain the clusters independent of the classification technique.'
+cluster_features = html.Div([html.P(paragraph2_01),
+                             html.Li(list2_01),
+                             html.Li(list2_02),
+                             html.Li(list2_03),
+                             html.P(paragraph2_02)],style=STYLE_CLUSTER_FEATURES)
 # ------------------------------
 #  8. Drop down for different clusters
 # ------------------------------
@@ -276,12 +302,12 @@ cluster_scatterplot = html.Div([cluster_select_drop,
 # 10. Boxplot
 # ------------------------------
 cluster_box = px.box(df_clusters, x="Coverage Type", y="dane_doc_31", color="Desertion Type",
-             points="all", title="Box plot of blabla", hover_data=["Municipio"])
+             points="all", title="Box plot of # Teachers (12,13,14) ranking", hover_data=["Municipio"])
 cluster_boxplot = html.Div([dcc.Graph(figure=cluster_box, id='cluster_box')],style=STYLE_CLUSTER_BOXPLOT)
 # ------------------------------
 # 11. Second text
 # ------------------------------
-cluster_second_text = html.Div(html.P('Second Text'),style=STYLE_CLUSTER_SECOND_TEXT)
+cluster_second_text = html.Div(html.P('Second Text'),id='feature_text',style=STYLE_CLUSTER_SECOND_TEXT)
 # ------------------------------
 # 12. End space
 # ------------------------------
@@ -290,14 +316,88 @@ cluster_end_space = html.Div(html.P(''),style=STYLE_CLUSTER_END_SPACE,id='empty_
 # ------------------------------
 # 13. Callback
 # ------------------------------
+# 13.0 Text display according to feature selection
+text_list = ['142','18','19','212','218','130','30','150','154','45','280','72','77','132']
+text_content = {}
+text_content['142'] = '''
+    dane_alu_18_p - Percentage of students that study in afternoon sessions.
+    We can see that in the cases where the percentage of students enrolled in afternoon sessions is high, desertion percentage increases. This is more evident in municipalities that have high educational coverage. One possible explanation is that those students who study in the afternoon may have to work (or be in charge of household chores) during the mornings. Given their responsibilities, they may be tired when they arrive at school and can be inclined to leave to be full-time in their duties.
+'''
+text_content['18'] = '''
+icbf_tasa_fecun_nin_10_14 - Fecundity rate between children aged between 10 and 14 years.
+
+When analysing the rate of pregnant students aged 10 to 14 years old, the desertion rate tends to be higher than those municipalities where the fecundity rate is lower. The difference is independent of coverage level, which supports that teen and child pregnancy is a critical variable to tackle to reduce desertion. See also the variable “% Fertility children 15-19Y”.
+'''
+text_content['19'] = '''
+icbf_tasa_fecun_nin_15_19 - Fecundity rate between children aged between 15 and 19 years
+
+The fecundity rate of children 15 to 19 shows a similar differentiation across clusters to those found in children between 10 and 14 years old. However, these rates are much higher than the ones of younger children. Using both variables can be very useful to understand dropouts. The first can help classify between the observed clusters, while the second can help explain the variability inside each group. See also the variable “% Fertility children 10-14Y”.
+'''
+text_content['212'] = '''
+me_tamaño_promedio_de_grupo - average size of student groups in the municipality.
+
+The size of the student group assigned to each classroom plays a significant role in differentiating among clusters. We see that dropout is smaller in classes with fewer students. The difference can be explained because, in smaller classrooms, teachers are better able to pay attention to each student and provide specific support. This is true regardless of coverage level points to group size as a relevant variable for desertion.
+'''
+text_content['218'] = '''
+sa_punt_matematicas : Average scores obtained on the standardized SABER test in the field of mathematics.
+
+The standardised test scores in mathematics show a differentiation across clusters which is important only for municipalities with low coverage. This suggests that although academic performance can be relevant to study desertion, the importance of this relation is more related to access to resources and other problems common to rural areas or poverty situations.
+'''
+text_content['130'] = '''
+dane_alu_12_P - Percentage of students that were moved (changed schools).
+
+This variable shows a clear differentiation across clusters which is more critical for desertion than for coverage. This is to be expected as changing schools can be traumatic for many students, and can be a powerful reason to abandon school. It may be useful to give more attention to the reasons that make students change schools (displacement, economic, etc) to get a better understanding of the influence of transfers.
+'''
+text_content['30'] = '''
+cr_homicidio_10mil - Number of murders reported by every 10.000 habitants of the municipality
+
+The municipalities that have a large dropout rate tend to present a higher number of murders by every 10.00 habitants. The variation tends to affect desertion at a larger level and seems invariante to coverage. However we must note that national police variables are greatly under-recorded. This restrains us from giving accurate conclusions, but the variable still gives us an idea of the behaviour of the data.
+'''
+text_content['150'] = '''
+Dane_alu_22_p - Percentage of students enrolled in preschool.
+
+By understanding the percentage of students enrolled in preschool, it can be extracted that the municipalities with high levels of desertion also have more students in kindergarten. In this case, those towns with high desertion rates have a significant difference between low and high coverage. But, in the case of municipalities with low dropout rates, the percentage of students enrolled in preschool doesn’t differ significantly compared to those with high coverage. See also the variable “% Students secondary”.
+'''
+text_content['154'] = '''
+Dane_alu_24_p - Percentage of students enrolled in middle school.
+
+Comparing the percentages of students in middle school with the percentage of students enrolled in preschool, we observe a turnaround in the distribution across the dropout rates. This reversal of tendencies across the proportion of preschoolers and middle schoolers suggests that students dropout occurs mainly during or after completing primary school. See also the variable “% Students preschool”.
+'''
+text_content['45'] = '''
+pobr_imp_cabecer -: Multidimensional index of poverty in the urban center.
+
+A common belief is that a driver of the dropout percentage is poverty. Consistently, the multidimensional poverty index shows a clear influence. Clearly, the higher the poverty measured by the multidimensional index, the more elevated the desertion rate. It happens in municipalities with both high and low coverage rates  with the effect being more drastic on the low coverage side.
+'''
+text_content['280'] = '''
+dane_doc_31_p - percentage of teachers in the highest education and experience tier (12, 13 and 14).
+
+The teachers play a crucial part during the education process and a good and experienced teacher can have a great impact on desertion rates. We see that in the municipalities where the percentage of teachers who are on the higher tiers of the experience ladder (12, 13 or 14 the more experienced teachers), the dropout rate is lower. The previous behaviour is more evident in the towns with low coverage.
+'''
+text_content['72'] = '''
+Dane_tic_01: Average number of computers per every 100 students
+
+The technology inside the schools is also an important driver regarding education and school desertion. As a result, the higher the number of computers that the students can use, the lower the dropout rate. Curiously, Some of the municipalities with high coverage have a lower number of computers per student than those belonging to low coverage rates. The effect of the access to computers and resources is independent of the coverage level, suggesting that technological resources are significant for the reduction of scholar desertion.
+'''
+text_content['77'] = '''
+dane_tic_03_1_p - Percentage of schools with electricity
+
+We can see that municipalities where the amount of schools with access to electricity is lower the desertion percentage is bigger. This is more important for municipalities where educational coverage is low, where we can see that the percentage is much more disperse. This feature is especially important in the cluster of high desertion and low coverage.
+'''
+text_content['132'] = '''
+dane_alu_13_p -Percentage of students displaced / demobilized.
+
+The number of demobilized or displaced students is an important differentiator of clusters with respect to desertion. This suggests that when expanding coverage on the High desertion cluster programs to attend the needs of children affected by armed conflict would be desirable.
+'''
+
 # 13.1 Additional data frame to be transformed upon changes in the page.
 df_scatter = df_clusters.copy()
 # 13.2 Variable to know which Feature is selected.
 cl_scatter_feature = 280 # Should be the same as in the line 228.
 cl_feature_label = 'dane_doc_31' # Label of variable 280.
-@app.callback(
+@app.callback(#feature_text
     [Output('cluster_scatter', 'figure'),
-     Output('cluster_box', 'figure')],
+     Output('cluster_box', 'figure'),
+     Output('feature_text', 'children')],
     [Input('cluster_var_drop', 'value'),
     Input('cluster_radio_log', 'value'),
     Input('cluster_select_drop', 'value'),
@@ -324,7 +424,7 @@ def update_cluster_figures(feature_id,log_value, cluster_value, y_value):
                 'me_cobertura_neta':'Coverage', 'deser_perc_rank':'Cluster',
                 "cobertura_rank": "Coverage Type", "desercion_rank": "Desertion Type"
             }, inplace=True)
-            print(df_scatter.head())
+
     # 2. Filter data according to selected cluster.
     if cluster_value is None: # If no filter, then use a copy of data.
         df_scatter_final = df_scatter
@@ -340,7 +440,13 @@ def update_cluster_figures(feature_id,log_value, cluster_value, y_value):
     # 5. Make new box plot
     new_box = px.box(df_scatter_final, x="Coverage Type", y=cl_feature_label, color="Desertion Type",log_y=cl_scale,
                          points="all", title="Box plot of "+cl_feature_label, hover_data=["Municipio"])
-    return [new_scatter,new_box]
+
+    # 6. Second text according to feature selection
+    new_second_text = ''
+    if feature_id in text_list:
+        new_second_text = text_content[feature_id]
+
+    return [new_scatter,new_box,new_second_text]
 
 # ------------------------------
 # 14. Layout
