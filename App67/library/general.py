@@ -68,7 +68,7 @@ PHOTO_4 = {
     "position": "absolute",
     "left": "40%",
     "top": "445px",
-    "width": "8%"
+    "width": "8.5%"
 }
 # 1.3 Photo 5
 PHOTO_5 = {
@@ -132,7 +132,7 @@ ph3 = html.Div([
     html.Img(src=app.get_asset_url("img/daniel_j_3.png"),style=PHOTO_3)
 ])
 ph4 = html.Div([
-    html.Img(src=app.get_asset_url("img/profile_sample.png"),style=PHOTO_4)
+    html.Img(src=app.get_asset_url("img/alberto_l.png"),style=PHOTO_4)
 ])
 ph5 = html.Div([
     html.Img(src=app.get_asset_url("img/diego_m.png"),style=PHOTO_5)
