@@ -9,6 +9,7 @@ from dash.dependencies import Input, Output, State
 
 import plotly.graph_objects as go
 
+from library import def_data
 from library.elements_all import sidebar_statistics
 from app import app
 
@@ -18,7 +19,9 @@ from plotly.subplots import make_subplots
 ##############################
 # 1. Load Data
 ##############################
-df_all = pd.read_csv('data/df_all.csv')
+
+df_all = pd.read_csv('data/df_all_3.csv')
+df_all = df_all.sort_values(by=['code_municip', 'year_cohort'])
 
 
 def get_desercion_variables(df_in, year, in_mun_code):
@@ -570,19 +573,21 @@ statistics = html.Div(
 
                 dbc.Row(explore_correlation),
 
-                dbc.Button(
-                        "Explore Municipality Statistics",
-                        id="collapse-button",
-                        className="mb-3",
-                        color="secondary",
-                ),
+                dbc.Row(explore_municipio),
 
-                dbc.Collapse(
-                    dbc.Card(dbc.CardBody(
-                        explore_municipio,
-                    )),
-                    id="collapse",
-                ),
+                # dbc.Button(
+                #         "Explore Municipality Statistics",
+                #         id="collapse-button",
+                #         className="mb-3",
+                #         color="secondary",
+                # ),
+                #
+                # dbc.Collapse(
+                #     dbc.Card(dbc.CardBody(
+                #         explore_municipio,
+                #     )),
+                #     id="collapse",
+                # ),
 
             ], style={'position': 'absolute', 'left': '20rem', 'top': '11rem', "width": "75%"}
         ),
