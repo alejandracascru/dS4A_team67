@@ -4,6 +4,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 import plotly.express as px
 import numpy as np
+import pandas as pd
 from dash.dependencies import Input, Output, State
 
 import json
@@ -53,6 +54,11 @@ df_desertion = def_data.runQuery("""
 df_desertion['desertion_perc'] = df_desertion['desertion_perc'].astype(np.float64)
 df_vars = def_data.runQuery("""select * from public.var_definition order by group_id;""")
 
+# 2.2 Format adjusment
+# ------------------------------
+
+
+
 # ------------------------------
 # 3. MAP
 # ------------------------------
@@ -95,7 +101,7 @@ def build_chart(depto_val,*args):
     global selected_var_code
     df_vars = sidebar_maps.df_vars.copy()
     changed_label_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
-
+      
     for i in df_vars['var_id']:
         if 'mapLabel-' + i in changed_label_id:
             selected_var_code = i
@@ -118,6 +124,7 @@ def build_chart(depto_val,*args):
             df_var_all_dpto[selected_var] = df_var_all_dpto[selected_var].astype(np.float64)
             label_fig = df_vars[df_vars['name'] == selected_var].reset_index()['label'][0]
             label_tittle =  df_vars[df_vars['name'] == selected_var].reset_index()['description'][0]
+            
             # 3.2.2.2 Define new map
             # ------------------------------
             new_map = px.choropleth_mapbox(df_var_all_dpto,
@@ -160,12 +167,26 @@ def build_chart(depto_val,*args):
             # ------------------------------
             label_fig = df_vars[df_vars['name'] == selected_var].reset_index()['label'][0]
             label_tittle =  df_vars[df_vars['name'] == selected_var].reset_index()['description'][0]
-            df_var_by_dpto = df_var_by_dpto.rename({'dane_alu_18_p': '% Students afternoon',
-                                                    'dane_tic_01': 'Avg computers x100 stu.',
-                                                    'dane_alu_12_p': '% Transferred students',
-                                                    'dane_tic_03_1_p': '% Schools with electricity',
-                                                    'po_pob_rural_10mil': '% Habitants (towns-rural)'}, axis=1) 
             
+            df_var_by_dpto['% Transferred students'] = pd.Series(["{0:.2f}%".format(val * 100) for val in df_var_by_dpto['dane_alu_12_p']],
+                                                    index = df_var_by_dpto.index)
+            df_var_by_dpto['% Students afternoon'] = pd.Series(["{0:.2f}%".format(val * 100) for val in df_var_by_dpto['dane_alu_18_p']],
+                                                        index = df_var_by_dpto.index)
+            df_var_by_dpto['% Schools with electricity'] = pd.Series(["{0:.2f}%".format(val * 100) for val in
+                                                                      df_var_by_dpto['dane_tic_03_1_p']],index = df_var_by_dpto.index)
+            df_var_by_dpto['% Transferred students'] = pd.Series(["{0:.2f}%".format(val * 100) for val in
+                                                                  df_var_by_dpto['dane_alu_12_p']],index = df_var_by_dpto.index)
+            df_var_by_dpto['% Habitants (towns-rural)'] = pd.Series([round(val, 2) for val in df_var_by_dpto['po_pob_rural_10mil']],
+                                                        index = df_var_by_dpto.index)
+            df_var_by_dpto['Avg computers x100 stu.'] = pd.Series([round(val, 2) for val in df_var_by_dpto['dane_tic_01']],
+                                                        index = df_var_by_dpto.index)
+            
+            #df_var_by_dpto = df_var_by_dpto.rename({'dane_alu_18_p': '% Students afternoon',
+            #                                        'dane_tic_01': 'Avg computers x100 stu.',
+            #                                        'dane_alu_12_p': '% Transferred students',
+            #                                        'dane_tic_03_1_p': '% Schools with electricity',
+            #                                        'po_pob_rural_10mil': '% Habitants (towns-rural)'}, axis=1)
+                        
             # 3.2.3.4 Define new map
             # ------------------------------
             new_map = px.choropleth_mapbox(df_var_by_dpto,
