@@ -34,9 +34,9 @@ STYLE_DESCRIPTION = {
 # 1.2 Background
 GENERAL_BACKGROUND = {
     "position": "absolute",
-    "width": "60%",
+    "width": "50%",
     "height": "400px",
-    "right": "5%",
+    "right": "4.2%",
     "top": "160px",
     "background-image": 'url(/assets/img/education2.jpg)',
     'background-repeat': 'no-repeat'
