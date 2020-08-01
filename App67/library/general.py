@@ -23,67 +23,144 @@ STYLE_DESCRIPTION = {
     "width": "53%",
     "height": "400px",
     "left": "12%",
-    "top": "113px",
+    "top": "110px",
     #"border": "10px solid #e7eff6",
     #"border-radius": "10px",
-    'color': '#072552',
+    'color': '#061936',
     'fontSize': 16,
+    'font-weight': '999',
     'text-align': 'justify'
 }
 
 # 1.2 Background
 GENERAL_BACKGROUND = {
     "position": "absolute",
-    "width": "50%",
-    "height": "400px",
-    "right": "4.2%",
-    "top": "160px",
-    "background-image": 'url(/assets/img/education2.jpg)',
+    "width": "20%",
+    "height": "550px",
+    #"right": "1%",
+    'left': '75%',
+    "top": "170px",
+    "background-image": 'url(/assets/img/education2.png)',
     'background-repeat': 'no-repeat'
 }
 
 # 1.3 Photo 1
 PHOTO_1 = {
     "position": "absolute",
-    "left": "9%",
-    "top": "445px",
+    "left": "8.5%",
+    "top": "470px",
     "width": "9.5%"
 }
-# 1.3 Photo 2
+# 1.4 Photo 2
 PHOTO_2 = {
     "position": "absolute",
-    "left": "20%",
-    "top": "445px",
+    "left": "21%",
+    "top": "470px",
     "width": "8%"
 }
-# 1.3 Photo 3
+# 1.5 Photo 3
 PHOTO_3 = {
     "position": "absolute",
-    "left": "30%",
-    "top": "445px",
+    "left": "32%",
+    "top": "470px",
     "width": "8%"
 }
-# 1.3 Photo 4
+# 1.6 Photo 4
 PHOTO_4 = {
     "position": "absolute",
-    "left": "40%",
-    "top": "445px",
+    "left": "43%",
+    "top": "470px",
     "width": "8.5%"
 }
-# 1.3 Photo 5
+# 1.7 Photo 5
 PHOTO_5 = {
     "position": "absolute",
-    "left": "50%",
-    "top": "445px",
+    "left": "54%",
+    "top": "470px",
     "width": "8%"
 }
-# 1.3 Photo 6
+# 1.8 Photo 6
 PHOTO_6 = {
     "position": "absolute",
-    "left": "60%",
-    "top": "445px",
+    "left": "65%",
+    "top": "470px",
     "width": "8%"
 }
+# 1.9 background_ph
+BACK_PHOTO = {
+    "position": "absolute",
+    "left": "0",
+    "top": "135px",
+    "width": "100%"
+}
+
+NAME_1 = {
+    "height": "450px",
+    'color': '#061936',
+    'fontSize': 14,
+    'font-weight': '999',
+    'text-align': 'center',
+    "position": "absolute",
+    "left": "7%",
+    "top": "578px",
+    "width": "13%"
+}
+NAME_2 = {
+    "height": "450px",
+    'color': '#061936',
+    'fontSize': 14,
+    'font-weight': '999',
+    'text-align': 'center',
+    "position": "absolute",
+    "left": "20%",
+    "top": "578px",
+    "width": "10%"
+}
+NAME_3 = {
+    "height": "450px",
+    'color': '#061936',
+    'fontSize': 14,
+    'font-weight': '999',
+    'text-align': 'center',
+    "position": "absolute",
+    "left": "31%",
+    "top": "578px",
+    "width": "10%"
+}
+NAME_4 = {
+    "height": "450px",
+    'color': '#061936',
+    'fontSize': 14,
+    'font-weight': '999',
+    'text-align': 'center',
+    "position": "absolute",
+    "left": "42%",
+    "top": "578px",
+    "width": "10%"
+}
+NAME_5 = {
+    "height": "450px",
+    'color': '#061936',
+    'fontSize': 14,
+    'font-weight': '999',
+    'text-align': 'center',
+    "position": "absolute",
+    "left": "53%",
+    "top": "578px",
+    "width": "10%"
+}
+NAME_6 = {
+    "height": "450px",
+    'color': '#061936',
+    'fontSize': 14,
+    'font-weight': '999',
+    'text-align': 'center',
+    "position": "absolute",
+    "left": "66%",
+    "top": "578px",
+    "width": "5%"
+}
+
 # ------------------------------
 # 2. Description Text
 # ------------------------------
@@ -140,12 +217,51 @@ ph5 = html.Div([
 ph6 = html.Div([
     html.Img(src=app.get_asset_url("img/luis_p.png"),style=PHOTO_6)
 ])
+bck_ph = html.Div([
+    html.Img(src=app.get_asset_url("img/colegio3.jpeg"),style=BACK_PHOTO)
+])
+
+name_1 = html.Div([
+    html.P('Alejandra Castelblanco  '
+           'Biomedical & Mechanical '
+           'Eng.')
+], style=NAME_1)
+
+name_2 = html.Div([
+    html.P('Carlos Coy '
+           'Electronic Eng.')
+], style=NAME_2)
+
+name_3 = html.Div([
+    html.P('Daniel Jimenez  '
+           'Statistician '
+           )
+], style=NAME_3)
+
+name_4 = html.Div([
+    html.P('Alberto Lagos  '
+           'Industrial Eng.'
+           )
+], style=NAME_4)
+
+name_5 = html.Div([
+    html.P('Diego Mora  '
+           'Electronic Eng.'
+           )
+], style=NAME_5)
+
+name_6 = html.Div([
+    html.P('Luis Parra  '
+           'Civil Eng.'
+           )
+], style=NAME_6)
 
 
 ##############################
 # General Layout
 ##############################
 general = html.Div(id='general_description', children=[
+    bck_ph,
     bg,
     ph1,
     ph2,
@@ -153,5 +269,11 @@ general = html.Div(id='general_description', children=[
     ph4,
     ph5,
     ph6,
-    text
+    text,
+    name_1,
+    name_2,
+    name_3,
+    name_4,
+    name_5,
+    name_6
 ])
