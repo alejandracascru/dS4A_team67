@@ -153,7 +153,7 @@ dropdown_years = dcc.Dropdown(
 
 sidebar = html.Div(
     [
-        dbc.Button("Compare Variables", id='stats_DEA-button', block=True, color='primary'),
+        html.H3('Explore Variables:'),
         html.P('Select Year:'),
         dropdown_years,
         html.P(' '),

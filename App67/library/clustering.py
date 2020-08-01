@@ -173,7 +173,7 @@ df_vars.rename(columns = {"weight": "Weight",'label':'Feature'}, inplace = True)
 # ------------------------------
 # 3.1 Loads JSON file
 # ------------------------------
-with open('data/municipios_1mn.json') as geo:
+with open('data/MGN_MPIO_POLITICO_2.json') as geo:
     munijson = json.loads(geo.read())
 
 # 3.2 Define initial map properties
@@ -184,10 +184,10 @@ cl_map = px.choropleth_mapbox(df_clusters,     # Data
         color='Cluster',                         # Column giving the color intensity of the region
         geojson=munijson,                        # The GeoJSON file
         zoom=4,                                  # Zoom
-        mapbox_style="white-bg",           # Mapbox style, for different maps you need a Mapbox account and a token
+        mapbox_style="carto-positron",           # Mapbox style, for different maps you need a Mapbox account and a token
         center={"lat": 4.5709, "lon": -74.2973}, # Center
-        color_continuous_scale="Viridis",        # Color Scheme
-        opacity=0.5,                             # Opacity of the map
+        #color_continuous_scale="Viridis",        # Color Scheme
+        #opacity=0.5,                             # Opacity of the map
         height=380,
         hover_name='Municipio',
         hover_data=['# Dropouts','Coverage','% Dropouts']
