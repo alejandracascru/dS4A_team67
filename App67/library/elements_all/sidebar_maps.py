@@ -125,7 +125,8 @@ def toggle_accordion(*args):
 df_depto = def_data.runQuery("""
     select distinct code_dept, name_dept 
     from master_table_by_municipio  
-    where year_cohort = 2019;""")
+    where year_cohort = 2019
+    order by name_dept;""")
 
 depto_drop = html.Div([
     dcc.Dropdown(
@@ -165,7 +166,7 @@ def update_output_3ss(*args):
 sidebar = html.Div(
     [
         #dbc.Button("Run DEA", id='DEA-button', block=True, color='primary'), #style={"background-color":"#011f4b"}
-        html.P('Instrucciones?'),
+        html.P('Select Department:'),
         html.Hr(),
         depto_drop,
         html.Hr(),
