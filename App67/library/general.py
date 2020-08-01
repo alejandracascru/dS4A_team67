@@ -20,10 +20,10 @@ from app import app
 # 1.1 text
 STYLE_DESCRIPTION = {
     "position": "absolute",
-    "width": "51%",
+    "width": "53%",
     "height": "400px",
-    "left": "14%",
-    "top": "115px",
+    "left": "12%",
+    "top": "113px",
     #"border": "10px solid #e7eff6",
     #"border-radius": "10px",
     'color': '#072552',
@@ -103,11 +103,14 @@ text = dcc.Tab(
                     ' Scholar desertion at younger ages severely limits job opportunities and '
                     'contributes to the propagation of poverty cycles across generations.'
                    ),
-            html.P('Considering the relevance of fighting school desertion in Colombia, '
-                   'we as a participant team of the DS4A program, defined a set of questions, '
-                   'that using data-analysis, could help the government to better allocate '
-                   'resources and design targeted policies to prevent school dropout.'),
-            html.P('We are:')
+            html.P('Team 67 decided to face this challenge by providing an interactive tool '
+                   'for understanding the problem. With the use of this interactive application '
+                   'it is our hope that you can understand some of the variables that are most '
+                   'related to the school dropout phenomenon in Colombian. In the interest of '
+                   'remaining humble, we did our best to not only present our findings, but to '
+                   'make the app interactive as possible so that more knowledgeable users can '
+                   'conduct their own analyses.'),
+            html.P('We sincerely hope that you enjoy it and find it useful!')
         ], style=STYLE_DESCRIPTION)
 
     )
