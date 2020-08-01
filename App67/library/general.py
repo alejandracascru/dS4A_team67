@@ -49,35 +49,35 @@ PHOTO_1 = {
     "top": "445px",
     "width": "9.5%"
 }
-# 1.3 Photo 1
+# 1.3 Photo 2
 PHOTO_2 = {
     "position": "absolute",
     "left": "20%",
     "top": "445px",
     "width": "8%"
 }
-# 1.3 Photo 1
+# 1.3 Photo 3
 PHOTO_3 = {
     "position": "absolute",
     "left": "30%",
     "top": "445px",
     "width": "8%"
 }
-# 1.3 Photo 1
+# 1.3 Photo 4
 PHOTO_4 = {
     "position": "absolute",
     "left": "40%",
     "top": "445px",
     "width": "8%"
 }
-# 1.3 Photo 1
+# 1.3 Photo 5
 PHOTO_5 = {
     "position": "absolute",
     "left": "50%",
     "top": "445px",
     "width": "8%"
 }
-# 1.3 Photo 1
+# 1.3 Photo 6
 PHOTO_6 = {
     "position": "absolute",
     "left": "60%",
@@ -126,7 +126,7 @@ ph1 = html.Div([
     html.Img(src=app.get_asset_url("img/alejandra_c.png"),style=PHOTO_1)
 ])
 ph2 = html.Div([
-    html.Img(src=app.get_asset_url("img/profile_sample.png"),style=PHOTO_2)
+    html.Img(src=app.get_asset_url("img/carlos_c.png"),style=PHOTO_2)
 ])
 ph3 = html.Div([
     html.Img(src=app.get_asset_url("img/daniel_j_3.png"),style=PHOTO_3)
