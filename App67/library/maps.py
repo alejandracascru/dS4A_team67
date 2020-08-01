@@ -112,8 +112,7 @@ def build_chart(depto_val,*args):
             # ------------------------------
             selected_var="desertion_perc"
             sql_query = 'select code_dept, name_dept, avg(' + selected_var + ') as ' + selected_var + ' ' + \
-                'from master_table_by_municipio ' + \
-                'where year_cohort = 2019 ' + \
+                'from cluster_master_table_by_municipio ' + \
                 'group by code_dept, name_dept;'
             df_var_all_dpto = def_data.runQuery(sql_query)
             df_var_all_dpto[selected_var] = df_var_all_dpto[selected_var].astype(np.float64)
@@ -142,9 +141,8 @@ def build_chart(depto_val,*args):
             # ------------------------------
             sql_query = 'select code_municip, code_dept, name_municip, dane_alu_18_p, dane_tic_03_1_p, ' + \
                         'po_pob_rural_10mil, dane_alu_12_p, dane_tic_01, ' + selected_var + ' ' + \
-                        'from master_table_by_municipio ' + \
-                        'where year_cohort = 2019 ' \
-                        'and code_dept = ' + single_qote + depto_val + single_qote + ';'
+                        'from cluster_master_table_by_municipio ' + \
+                        'where code_dept = ' + single_qote + depto_val + single_qote + ';'
 
             df_var_by_dpto = def_data.runQuery(sql_query)
             df_var_by_dpto[selected_var] = df_var_by_dpto[selected_var].astype(np.float64)
