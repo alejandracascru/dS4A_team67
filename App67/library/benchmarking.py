@@ -34,7 +34,7 @@ from library.elements_all import sidebar_benchmarking
 # ------------------------------
 # 1.1 Map Styles
 MAP_BENCHMARK_STYLE = {
-    "position": "fixed",
+    "position": "absolute",
     "width": "35%",
     "left": "17rem",
     "top": "140px",
@@ -44,7 +44,7 @@ MAP_BENCHMARK_STYLE = {
 
 # 1.2 Ranking Table Styles
 GROUP_TABLE_BENCHMARK_STYLE = {
-    "position": "fixed",
+    "position": "absolute",
     "width": "20%",
     "right": "1rem",
     "top": "140px",
@@ -54,7 +54,7 @@ GROUP_TABLE_BENCHMARK_STYLE = {
 
 # 1.3 Group Table Styles
 RANKING_TABLE_BENCHMARK_STYLE = {
-    "position": "fixed",
+    "position": "absolute",
     "width": "20%",
     "right": "22%",
     "top": "140px",
@@ -64,7 +64,7 @@ RANKING_TABLE_BENCHMARK_STYLE = {
 
 # 1.4 Group Table Styles
 SLACK_GRAPH_BENCHMARK_STYLE = {
-    "position": "fixed",
+    "position": "absolute",
     "width": "41%",
     "height": "200px",
     "right": "1rem",
@@ -75,13 +75,14 @@ SLACK_GRAPH_BENCHMARK_STYLE = {
 
 # 1.5 Efficiency Definition Styles
 EFFICIENCY_DEF_STYLE ={
-    "position": "fixed",
+    "position": "absolute",
     "width": "35%",
     "height": "80px",
     "left": "17rem",
     "bottom": "10px",
-    "border": "1px solid #e7eff6",
-    "border-radius": "10px"
+    #"border": "1px solid #e7eff6",
+    #"border-radius": "10px",
+    'overflowY': 'scroll'
 }
 
 # ------------------------------
@@ -90,13 +91,12 @@ EFFICIENCY_DEF_STYLE ={
 # 2.1 Initial query
 # ------------------------------
 df_dropout_efficiency = def_data.runQuery("""
-    select 1 as Rank, code_municip, name_municip as muni,
-    (dane_alu_01 - dane_alu_11) as efficiency 
-    from master_table_by_municipio 
-    where year_cohort = 2019 
-    and dane_alu_01 is not null  and dane_alu_11 is not null  
-    and dane_alu_01 > 0; """)
+    select code_municip, name_municip as muni, benchmarking_rank  as rank, 
+    benchmarking_efficiency as efficiency 
+    from cluster_master_table_by_municipio cmtbm  ; """)
 df_dropout_efficiency['efficiency'] = df_dropout_efficiency['efficiency'].astype(np.float64)
+df_dropout_efficiency['efficiency_percent'] = df_dropout_efficiency['efficiency'].astype(float).map("{:.1%}".format)
+df_dropout_efficiency.sort_values(by=['efficiency','muni'], ascending=[False,True], inplace=True)
 # 2.1 Query function
 # ------------------------------
 
@@ -105,7 +105,7 @@ df_dropout_efficiency['efficiency'] = df_dropout_efficiency['efficiency'].astype
 # ------------------------------
 # 3.1 Loads JSON file
 # ------------------------------
-with open('data/municipios_1mn.json') as geo:
+with open('data/MGN_MPIO_POLITICO_2.json') as geo:
     munijson = json.loads(geo.read())
 
 # 3.2 Define initial map properties
@@ -116,10 +116,10 @@ EF_Map = px.choropleth_mapbox(df_dropout_efficiency,     # Data
         color='efficiency',                      # Column giving the color intensity of the region
         geojson=munijson,                        # The GeoJSON file
         zoom=4,                                  # Zoom
-        mapbox_style="white-bg",           # Mapbox style, for different maps you need a Mapbox account and a token
+        mapbox_style="carto-positron",           # Mapbox style, for different maps you need a Mapbox account and a token
         center={"lat": 4.5709, "lon": -74.2973}, # Center
         color_continuous_scale="Viridis",        # Color Scheme
-        opacity=0.5                              # Opacity of the map
+        opacity=0.8                              # Opacity of the map
         )
 EF_Map.update_geos(fitbounds="locations", visible=False)
 EF_Map.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
@@ -187,11 +187,8 @@ slack_graph.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
 # ------------------------------
 # 7. Efficiency Definition
 # ------------------------------
-efficiency_def = html.Div(
-    [
-        html.P('Efficient municipalities are those that produce the lesser school dropout while spending a given amount of the inputs:')
-    ],
-    style=EFFICIENCY_DEF_STYLE
+efficiency_def = html.Div([
+        html.P('Efficient municipalities are those that produce the lesser school dropout while spending a given amount of the inputs:')]
 )
 
 # ------------------------------
@@ -233,11 +230,11 @@ def on_button_click(n):
 
         # 2.2 Define the region restriction
         if sidebar_benchmarking.area_array is not None:
-            are_res = 'and region = ' + single_qote + sidebar_benchmarking.area_array + single_qote + ' '
+            are_res = 'where region = ' + single_qote + sidebar_benchmarking.area_array + single_qote + ' '
 
         # 2.3 Define the SQL query
         benchmarking_sql_query = 'select code_municip, name_municip as muni, ' + var_col + \
-            ' from master_table_by_municipio where year_cohort = 2019 ' + \
+            ' from cluster_master_table_by_municipio ' + \
             are_res + var_res
 
         # 3. Get data from SQL table master_table_by_municipio.
@@ -264,7 +261,7 @@ def on_button_click(n):
         for dmu in df_benchmarking_data['DMU'].tolist():
             def_data.BCCO_DMU_PH1(df_benchmarking_data, dmu, inp, out)
             ph1_dual = linprog(c=def_data.obj1, A_ub=def_data.lhs_ineq1, b_ub=def_data.rhs_ineq1, A_eq=def_data.lhs_eq1, b_eq=def_data.rhs_eq1, bounds=def_data.bnd1, method="simplex")
-            def_data.BCCO_DMU_PH2(df_benchmarking_data, dmu, -1 * Decimal(ph1_dual.fun), inp, out)
+            def_data.BCCO_DMU_PH2(df_benchmarking_data, dmu, -1 * ph1_dual.fun, inp, out)
             ph2 = linprog(c=def_data.obj2, A_eq=def_data.lhs_eq2, b_eq=def_data.rhs_eq2, bounds=def_data.bnd2, method="simplex")
             ef = ef.append({'dmu': dmu, 'efficiency': -1 / ph1_dual.fun,
                             'reference_set': def_data.BCCO_DMU_REFSET(df_benchmarking_data, inp, out, ph2.x),
@@ -276,10 +273,18 @@ def on_button_click(n):
         ef = ef.sort_values(by=["efficiency", 'muni'], ascending=[False, True])
         ef["rank"] = ef["efficiency"].rank(ascending=False, method='min')
         ef['efficiency_percent'] = ef['efficiency'].astype(float).map("{:.1%}".format)
+        ef['Municipality'] = ef['muni']
 
         # 5.2 Efficient Units and Reference set
         ef_dmu = ef[ef['efficiency']>=1][['dmu','muni']]
         ref_set = pd.DataFrame(ef[ef['efficiency'] < 1][['reference_set']].reset_index()['reference_set'].value_counts()).reset_index()
+
+        def convert_dmu_to_string(array):
+            new_array = []
+            for dmu in array:
+                if dmu in list(ef_dmu['dmu']):
+                    new_array.append(ef_dmu[ef_dmu['dmu'] == dmu][['muni']].reset_index()['muni'][0])
+            return new_array
 
         # From ref_set gets names and takeout non productive units
         refset_data = []
@@ -297,6 +302,8 @@ def on_button_click(n):
 
         new_group_data = refset_df.to_dict('records')
 
+        # Refset for display in the map
+        ef['Ref Municipality'] = ef['reference_set'].apply(convert_dmu_to_string)
         # 5.3 Slack Variables count
         slack = []
         for sl in ef['slack']:
@@ -340,7 +347,9 @@ def on_button_click(n):
               mapbox_style="white-bg",                  # Mapbox style, for different maps you need a Mapbox account and a token
               center={"lat": 4.5709, "lon": -74.2973},  # Center
               color_continuous_scale="Viridis",         # Color Scheme
-              opacity=0.5                               # Opacity of the map
+              opacity=0.5,                              # Opacity of the map
+              hover_name='Municipality',
+              hover_data=['Ref Municipality']
                                       )
         new_Map.update_geos(fitbounds="locations", visible=False)
         new_Map.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
@@ -361,7 +370,7 @@ def on_button_click(n):
 benchmarking = html.Div([
     sidebar_benchmarking.sidebar,
     html.Div([dcc.Graph(figure=EF_Map, id='benchmarking_map')],style = MAP_BENCHMARK_STYLE),
-    efficiency_def,
+    html.Div(efficiency_def,id='efficiency_def',style=EFFICIENCY_DEF_STYLE),
     html.Div([ranking_table],style = RANKING_TABLE_BENCHMARK_STYLE),
     html.Div([group_table],style = GROUP_TABLE_BENCHMARK_STYLE),
     html.Div([dcc.Graph(figure=slack_graph, id='slack_graph')],style = SLACK_GRAPH_BENCHMARK_STYLE)

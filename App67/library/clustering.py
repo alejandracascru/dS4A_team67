@@ -210,13 +210,13 @@ cluster_figure_3D = html.Div([dcc.Graph(figure=cl_scatter, id='cluster_map')],st
 paragraph01 = '''
 A K-means clustering algorithm was applied to group the municipalities using our interest variables: the dropout rate, the number of students that leave the school and the Net Educational Coverage. We found four clusters:
 
-`**Cluster 1 (LD-LC)**`: Municipalities with low desertion and low coverage. It is formed by 270 towns. We see that many of the municipalities of this group are highly rural, and spread across many regions.
+`Cluster 1 (LD-LC)`: Municipalities with low desertion and low coverage. It is formed by 270 towns. We see that many of the municipalities of this group are highly rural, and spread across many regions.
 
 `Cluster 2 (LD-HC)`: Municipalities with low desertion and high coverage. 355 towns belong to this group.
 
-**Cluster 3 (HD-LC)**: Municipalities with high desertion and low coverage. Inside of this cluster, there are 242 Towns. In this cluster, we find many municipalities that have had less presence of the government and are affected by poverty and armed conflict.
+`Cluster 3 (HD-LC)`: Municipalities with high desertion and low coverage. Inside of this cluster, there are 242 Towns. In this cluster, we find many municipalities that have had less presence of the government and are affected by poverty and armed conflict.
 
-**Cluster 4 (HD-HC)**: Municipalities with high desertion and high coverage. The size of this group is 253. Many of the departmental capitals and main cities are represented in this cluster.
+`Cluster 4 (HD-HC)`: Municipalities with high desertion and high coverage. The size of this group is 253. Many of the departmental capitals and main cities are represented in this cluster.
 '''
 cluster_first_text = html.Div(dcc.Markdown(paragraph01),style=STYLE_CLUSTER_FIRST_TEXT)
 # ------------------------------
@@ -292,7 +292,7 @@ cluster_radio_y = dcc.RadioItems(
     labelStyle={'display': 'inline-block'}
 )
 
-cluster_scatter = px.scatter(df_clusters, x='dane_doc_31', y='% Dropouts')
+cluster_scatter = px.scatter(df_clusters, x='dane_doc_31', y='% Dropouts', color="Cluster")
 
 cluster_scatterplot = html.Div([cluster_select_drop,
                                 cluster_radio_y,
@@ -307,7 +307,13 @@ cluster_boxplot = html.Div([dcc.Graph(figure=cluster_box, id='cluster_box')],sty
 # ------------------------------
 # 11. Second text
 # ------------------------------
-cluster_second_text = html.Div(html.P('Second Text'),id='feature_text',style=STYLE_CLUSTER_SECOND_TEXT)
+second_text_content = '''
+dane_doc_31_p - percentage of teachers in the highest education and experience tier (12, 13 and 14).
+
+The teachers play a crucial part during the education process and a good and experienced teacher can have a great impact on desertion rates. We see that in the municipalities where the percentage of teachers who are on the higher tiers of the experience ladder (12, 13 or 14 the more experienced teachers), the dropout rate is lower. The previous behaviour is more evident in the towns with low coverage.
+'''
+
+cluster_second_text = html.Div(html.P(second_text_content),id='feature_text',style=STYLE_CLUSTER_SECOND_TEXT)
 # ------------------------------
 # 12. End space
 # ------------------------------
@@ -418,24 +424,24 @@ def update_cluster_figures(feature_id,log_value, cluster_value, y_value):
             df_scatter = def_data.runQuery(sql_query)
             for col in ['desertion_no', 'me_cobertura_neta', 'desertion_perc', new_feature_name]:
                 df_scatter[col] = df_scatter[col].astype(np.float64)
+            df_scatter['Cluster'] = df_scatter['deser_perc_rank'].astype(str).str[0]
             df_scatter.rename(columns={
                 'name_municip':'Municipio',new_feature_name: cl_feature_label,
                 'desertion_no':'# Dropouts','desertion_perc':'% Dropouts',
-                'me_cobertura_neta':'Coverage', 'deser_perc_rank':'Cluster',
+                'me_cobertura_neta':'Coverage', 'deser_perc_rank':'Cluster Description',
                 "cobertura_rank": "Coverage Type", "desercion_rank": "Desertion Type"
             }, inplace=True)
-
     # 2. Filter data according to selected cluster.
     if cluster_value is None: # If no filter, then use a copy of data.
         df_scatter_final = df_scatter
     else:
-        df_scatter_final = df_scatter[df_scatter['Cluster']==cluster_value]
+        df_scatter_final = df_scatter[df_scatter['Cluster Description']==cluster_value]
 
     # 3. Determine the scale o x-axis: linear or logarithmic
     cl_scale = True if log_value == 'log' else False
 
     # 4. Make new scatter plot
-    new_scatter = px.scatter(df_scatter_final, x=cl_feature_label, y=y_value, log_x=cl_scale)
+    new_scatter = px.scatter(df_scatter_final, x=cl_feature_label, y=y_value, log_x=cl_scale, color="Cluster")
 
     # 5. Make new box plot
     new_box = px.box(df_scatter_final, x="Coverage Type", y=cl_feature_label, color="Desertion Type",log_y=cl_scale,

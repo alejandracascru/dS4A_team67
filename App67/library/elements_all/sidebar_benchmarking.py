@@ -149,17 +149,23 @@ def update_output_1kjhskjh(value):
     global area_array
     area_array = value
     return value
-
-@app.callback(Output('bench_checklist_2_output', 'children'),
+#
+@app.callback([Output('bench_checklist_2_output', 'children'),
+               Output('efficiency_def', 'children')],
               [Input(f'bench_checklist_{i}', 'value') for i in var_groups])
 def update_output_3(*args):
     global input_array
+    def_str = 'Efficient municipalities are those that produce the lesser school dropout ' +\
+          'while spending a given amount of the inputs:'
     active_vars = []
     for check_vars in args:
         if check_vars is not None:
             active_vars = active_vars + check_vars
+            for item in check_vars:
+                def_str = def_str + ' ' + list(df_vars[df_vars['var_id'] == str(item)]['label'])[0] + ','
     input_array = active_vars
-    return 'Fabio A. Lagos'
+
+    return ['Fabio A. Lagos',def_str[:-1]]
 
 # ------------------------------
 # 5. SIDEBAR LAYOUT
@@ -167,7 +173,7 @@ def update_output_3(*args):
 sidebar = html.Div(
     [
         dbc.Button("Run DEA", id='DEA-button', block=True, color='primary'), #style={"background-color":"#011f4b"}
-        html.P('Instrucciones?'),
+        html.P(''),
         html.Hr(),
         area_drop,
         html.Hr(),
