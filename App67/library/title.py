@@ -11,7 +11,7 @@ from app import app
 DS4A_Img = html.Img(src=app.get_asset_url("img/ds4a-img-03.svg"),
                     style={'width': '15%', 'float': 'right', 'padding-right': '3%'})
 
-Project_Title = html.H1(children=["School Dropout in Colombia", DS4A_Img],
+Project_Title = html.H1(children=["School Desertion in Colombia", DS4A_Img],
                         style={'padding': '20px 0px 0px 0px'})
 
 title = html.Div(className="main-title", children=[Project_Title], id="title")
