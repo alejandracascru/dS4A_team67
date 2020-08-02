@@ -65,7 +65,7 @@ df_vars = def_data.runQuery("""select * from public.var_definition order by grou
 # 3.1 Global variables
 # ------------------------------
 selected_var = 'desertion_perc'
-selected_var_code = 3
+selected_var_code = 181
 selected_dpt = 'Antioquia'
 label_fig = df_vars[df_vars['name'] == selected_var].reset_index()['label'][0]
 # 3.2 Initial map
@@ -99,6 +99,7 @@ def build_chart(depto_val,*args):
     # 3.2.1 Determine is a variable is selected and which
     # ------------------------------
     global selected_var_code
+    
     df_vars = sidebar_maps.df_vars.copy()
     changed_label_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
       
