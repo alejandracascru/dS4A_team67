@@ -22,12 +22,12 @@ STYLE_DESCRIPTION = {
     "position": "absolute",
     "width": "53%",
     "height": "400px",
-    "left": "12%",
+    "left": "15%",
     "top": "110px",
     #"border": "10px solid #e7eff6",
     #"border-radius": "10px",
     'color': '#061936',
-    'fontSize': 16,
+    'fontSize': 18,
     'font-weight': '999',
     'text-align': 'justify'
 }
@@ -48,42 +48,42 @@ GENERAL_BACKGROUND = {
 PHOTO_1 = {
     "position": "absolute",
     "left": "8.5%",
-    "top": "480px",
+    "top": "530px",
     "width": "9.5%"
 }
 # 1.4 Photo 2
 PHOTO_2 = {
     "position": "absolute",
     "left": "21%",
-    "top": "480px",
+    "top": "530px",
     "width": "8%"
 }
 # 1.5 Photo 3
 PHOTO_3 = {
     "position": "absolute",
     "left": "32%",
-    "top": "480px",
+    "top": "530px",
     "width": "8%"
 }
 # 1.6 Photo 4
 PHOTO_4 = {
     "position": "absolute",
     "left": "43%",
-    "top": "480px",
+    "top": "530px",
     "width": "8.5%"
 }
 # 1.7 Photo 5
 PHOTO_5 = {
     "position": "absolute",
     "left": "54%",
-    "top": "480px",
+    "top": "530px",
     "width": "8%"
 }
 # 1.8 Photo 6
 PHOTO_6 = {
     "position": "absolute",
     "left": "65%",
-    "top": "480px",
+    "top": "530px",
     "width": "8%"
 }
 # 1.9 background_ph
@@ -102,7 +102,7 @@ NAME_1 = {
     'text-align': 'center',
     "position": "absolute",
     "left": "7%",
-    "top": "588px",
+    "top": "670px",
     "width": "13%"
 }
 NAME_2 = {
@@ -113,7 +113,7 @@ NAME_2 = {
     'text-align': 'center',
     "position": "absolute",
     "left": "20%",
-    "top": "588px",
+    "top": "670px",
     "width": "10%"
 }
 NAME_3 = {
@@ -124,7 +124,7 @@ NAME_3 = {
     'text-align': 'center',
     "position": "absolute",
     "left": "31%",
-    "top": "588px",
+    "top": "670px",
     "width": "10%"
 }
 NAME_4 = {
@@ -135,7 +135,7 @@ NAME_4 = {
     'text-align': 'center',
     "position": "absolute",
     "left": "42%",
-    "top": "588px",
+    "top": "670px",
     "width": "10%"
 }
 NAME_5 = {
@@ -146,7 +146,7 @@ NAME_5 = {
     'text-align': 'center',
     "position": "absolute",
     "left": "53%",
-    "top": "588px",
+    "top": "670px",
     "width": "10%"
 }
 NAME_6 = {
@@ -157,7 +157,7 @@ NAME_6 = {
     'text-align': 'center',
     "position": "absolute",
     "left": "66%",
-    "top": "588px",
+    "top": "670px",
     "width": "5%"
 }
 
@@ -175,7 +175,7 @@ text = dcc.Tab(
             #html.Br(),
             html.P('Scholar desertion is an important phenomenon that affects boys, girls and teenagers' 
                    '  around the globe. In developing countries,' 
-                    ' it affects society at different levels as not attending school' 
+                    ' it affects society at different levels, as not attending school' 
                     ' impacts the individual’s possibilities to improve his or her wellbeing.' 
                     ' Scholar desertion at younger ages severely limits job opportunities and '
                     'contributes to the propagation of poverty cycles across generations.'
@@ -183,9 +183,9 @@ text = dcc.Tab(
             html.P('Team 67 decided to face this challenge by providing an interactive tool '
                    'for understanding the problem. With the use of this interactive application '
                    'it is our hope that you can understand some of the variables that are most '
-                   'related to the school dropout phenomenon in Colombian. In the interest of '
+                   'related to the school dropout phenomenon in Colombia. In the interest of '
                    'remaining humble, we did our best to not only present our findings, but to '
-                   'make the app interactive as possible so that more knowledgeable users can '
+                   'make the app as interactive as possible so that other knowledgeable users can '
                    'conduct their own analyses.'),
             html.P('We sincerely hope that you enjoy it and find it useful!')
         ], style=STYLE_DESCRIPTION)
@@ -218,7 +218,7 @@ ph6 = html.Div([
     html.Img(src=app.get_asset_url("img/luis_p.png"),style=PHOTO_6)
 ])
 bck_ph = html.Div([
-    html.Img(src=app.get_asset_url("img/colegio3.jpeg"),style=BACK_PHOTO)
+    html.Img(src=app.get_asset_url("img/colegio6.png"),style=BACK_PHOTO)
 ])
 
 name_1 = html.Div([
@@ -262,7 +262,7 @@ name_6 = html.Div([
 ##############################
 general = html.Div(id='general_description', children=[
     bck_ph,
-    bg,
+    #bg,
     ph1,
     ph2,
     ph3,

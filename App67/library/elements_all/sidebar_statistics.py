@@ -127,9 +127,10 @@ dropdown_variables = dcc.Dropdown(
     id='xy-dropdown',
     options=[
         {'label': 'X variable', 'value': 'x_selected'},
-        {'label': 'Y variable', 'value': 'y_selected'}
+        {'label': 'Y variable', 'value': 'y_selected'},
+        {'label': 'Reset', 'value': 'none'}
     ],
-    value='x_selected'
+    value='none'
 )
 
 dropdown_years = dcc.Dropdown(
@@ -156,9 +157,9 @@ sidebar = html.Div(
         html.H3('Explore Variables:'),
         html.P('Select Year:'),
         dropdown_years,
-        html.P(' '),
-        html.P('Select X Variable to Compare:'),
-        # dropdown_variables,
+        html.Br(),
+        html.P('Select Variable to Compare:'),
+        dropdown_variables,
         html.Hr(),
         accordion,
     ],

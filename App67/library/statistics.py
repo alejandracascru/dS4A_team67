@@ -23,6 +23,11 @@ from plotly.subplots import make_subplots
 df_all = pd.read_csv('data/df_all_3.csv')
 df_all = df_all.sort_values(by=['code_municip', 'year_cohort'])
 
+var_x_in = 'sa_punt_matematicas'
+var_x_l = 'National Test - Saber Pro Score'
+var_y_in = 'desertion_perc'
+var_y_l = 'School Desertion Percentage [%]'
+
 
 def get_desercion_variables(df_in, year, in_mun_code):
     df_filtered = df_in[df_in['code_municip'] == in_mun_code]
@@ -203,7 +208,7 @@ df_vars_here = sidebar_statistics.df_vars
     Output('Corr_fig', 'figure'),
     [
         Input('demo-dropdown', 'value'),
-        # Input('xy-dropdown', 'value'),
+        Input('xy-dropdown', 'value'),
         Input('year-dropdown', 'value'),
 
         Input('cluster_radio_log_x', 'value'),
@@ -224,18 +229,24 @@ df_vars_here = sidebar_statistics.df_vars
 def figure_correlation(*args):
     n_groups = len(sidebar_groups)+1
     reg_dept = args[0]
-    xy_selection = 'x_selected' # args[1]
-    year_selection = args[1]
-    log_value_x = args[2]
-    log_value_y = args[3]
-    values = args[4:12]
-    is_open = args[12:]
+    xy_selection = args[1]
+    year_selection = args[2]
+    log_value_x = args[3]
+    log_value_y = args[4]
+    values = args[5:13]
+    is_open = args[13:]
+
+    global var_x_in
+    global var_x_l
+    global var_y_in
+    global var_y_l
 
     log_scale_x = True if log_value_x == 'log' else False
     log_scale_y = True if log_value_y == 'log' else False
 
     def selected_var(values, is_open):
         output = ''
+        correct = False
         for i in range(len(values)):
             check_vars = values[i]
             temp_is_open = is_open[i]
@@ -247,19 +258,32 @@ def figure_correlation(*args):
 
             axis_temp = df_vars_here[df_vars_here['var_id'] == output]['label'].to_numpy()
             axis_l = str(axis_temp[0])
-        else:
-            label = 'sa_punt_matematicas'
-            axis_l = 'Math Score - Saber Pro'
-        return label, axis_l
+            correct = True
+        return label, axis_l, correct
 
-    var_x_in = 'sa_punt_matematicas'
-    var_x_l = 'National Test - Saber Pro Score'
-    var_y_in = 'desertion_perc'
-    var_y_l = 'School Desertion Percentage [%]'
-    if xy_selection =='x_selected':
-        var_x_in, var_x_l = selected_var(values, is_open)
-    # else:
-    #     var_y_in, var_y_l = selected_var(values, is_open)
+    if xy_selection == 'x_selected':
+        var_x_temp, label_x_temp, correct = selected_var(values, is_open)
+        if correct:
+            var_x_in = var_x_temp
+            var_x_l = label_x_temp
+        else:
+            var_x_in = 'sa_punt_matematicas'
+            var_x_l = 'National Test - Saber Pro Score'
+
+    elif xy_selection == 'y_selected':
+        var_y_temp, label_y_temp, correct = selected_var(values, is_open)
+        if correct:
+            var_y_in = var_y_temp
+            var_y_l = label_y_temp
+        else:
+            var_y_in = 'desertion_perc'
+            var_y_l = 'School Desertion Percentage [%]'
+    else:
+        var_x_in = 'sa_punt_matematicas'
+        var_x_l = 'National Test - Saber Pro Score'
+        var_y_in = 'desertion_perc'
+        var_y_l = 'School Desertion Percentage [%]'
+
 
     scatter_df = get_correlation_df(
         df_in=df_all,
@@ -575,19 +599,6 @@ statistics = html.Div(
 
                 dbc.Row(explore_municipio),
 
-                # dbc.Button(
-                #         "Explore Municipality Statistics",
-                #         id="collapse-button",
-                #         className="mb-3",
-                #         color="secondary",
-                # ),
-                #
-                # dbc.Collapse(
-                #     dbc.Card(dbc.CardBody(
-                #         explore_municipio,
-                #     )),
-                #     id="collapse",
-                # ),
 
             ], style={'position': 'absolute', 'left': '20rem', 'top': '11rem', "width": "75%"}
         ),
