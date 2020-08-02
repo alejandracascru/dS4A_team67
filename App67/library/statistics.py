@@ -222,6 +222,7 @@ df_vars_here = sidebar_statistics.df_vars
         Input('stats_checklist_6', 'value'),
         Input('stats_checklist_7', 'value'),
         Input('stats_checklist_8', 'value'),
+        Input('stats_checklist_9', 'value'),
 
      ],
     [State(f"stats_collapse-{i}", "is_open") for i in sidebar_groups],
@@ -233,8 +234,8 @@ def figure_correlation(*args):
     year_selection = args[2]
     log_value_x = args[3]
     log_value_y = args[4]
-    values = args[5:13]
-    is_open = args[13:]
+    values = args[5:14]
+    is_open = args[14:]
 
     global var_x_in
     global var_x_l
