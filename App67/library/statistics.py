@@ -97,6 +97,16 @@ def get_municipalities(df_in):
             'value': int(value_temp)})
     return array_options
 
+
+def get_years_variable(var_name, df_in):
+    df_var = df_all[[var_name, 'year_cohort']]
+    df_var = df_var.dropna()
+    df_var = df_var.sort_values(by=['year_cohort'])
+    years_available = df_var['year_cohort'].unique()
+    years_available_all = ' - '.join(map(str, years_available))
+    return years_available_all
+
+
 ##############################
 # Figures
 ##############################
@@ -414,6 +424,76 @@ def figure_bar_cobertura(*args):
     return fig
 
 
+@app.callback(
+    Output(component_id='my-output-x', component_property='children'),
+    [
+        Input(component_id='xy-dropdown', component_property='value'),
+        Input('stats_checklist_1', 'value'),
+        Input('stats_checklist_2', 'value'),
+        Input('stats_checklist_3', 'value'),
+        Input('stats_checklist_4', 'value'),
+        Input('stats_checklist_5', 'value'),
+        Input('stats_checklist_6', 'value'),
+        Input('stats_checklist_7', 'value'),
+        Input('stats_checklist_8', 'value'),
+        Input('stats_checklist_9', 'value'),
+     ],
+    [State(f"stats_collapse-{i}", "is_open") for i in sidebar_groups],
+)
+def update_output_div(*args):
+    selected = args[0]
+    values = args[1:10]
+    is_open = args[10:]
+
+    years_avail = '2011 - 2012 - 2013 - 2014 - 2015 - 2016 - 2017 - 2018 - 2019'
+
+    if selected == 'x_selected':
+        for i in range(len(values)):
+            check_vars = values[i]
+            temp_is_open = is_open[i]
+            if check_vars is not None and temp_is_open:
+                output = str(check_vars)
+                label_temp = df_vars_here[df_vars_here['var_id'] == output]['name'].to_numpy()
+                years_avail = get_years_variable(label_temp[0], df_all)
+
+    return 'Output: {}'.format(years_avail)
+
+
+@app.callback(
+    Output(component_id='my-output-y', component_property='children'),
+    [
+        Input(component_id='xy-dropdown', component_property='value'),
+        Input('stats_checklist_1', 'value'),
+        Input('stats_checklist_2', 'value'),
+        Input('stats_checklist_3', 'value'),
+        Input('stats_checklist_4', 'value'),
+        Input('stats_checklist_5', 'value'),
+        Input('stats_checklist_6', 'value'),
+        Input('stats_checklist_7', 'value'),
+        Input('stats_checklist_8', 'value'),
+        Input('stats_checklist_9', 'value'),
+     ],
+    [State(f"stats_collapse-{i}", "is_open") for i in sidebar_groups],
+)
+def update_output_div(*args):
+    selected = args[0]
+    values = args[1:10]
+    is_open = args[10:]
+
+    years_avail = '2011 - 2012 - 2013 - 2014 - 2015 - 2016 - 2017 - 2018 - 2019'
+
+    if selected == 'y_selected':
+        for i in range(len(values)):
+            check_vars = values[i]
+            temp_is_open = is_open[i]
+            if check_vars is not None and temp_is_open:
+                output = str(check_vars)
+                label_temp = df_vars_here[df_vars_here['var_id'] == output]['name'].to_numpy()
+                years_avail = get_years_variable(label_temp[0], df_all)
+
+    return 'Output: {}'.format(years_avail)
+
+
 
 ##############################
 # Dropdowns
@@ -579,6 +659,17 @@ explore_correlation = html.Div(
             dcc.Graph(id='Corr_fig'),
             style={"left": "100px", "width": "100%"}
         ),
+        dbc.Row([
+            dbc.Col([
+                html.Div('Years Available for Variable X'),
+                html.Div(id='my-output-x'),
+            ]),
+            dbc.Col([
+                html.Div('Years Available for Variable Y'),
+                html.Div(id='my-output-y'),
+            ]),
+        ]),
+
     ]
 )
 
@@ -597,6 +688,8 @@ statistics = html.Div(
                 dbc.Row(html.Div(html.Br())),
 
                 dbc.Row(explore_correlation),
+
+                dbc.Row(html.Div(html.Br())),
 
                 dbc.Row(explore_municipio),
 
