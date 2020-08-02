@@ -262,7 +262,7 @@ name_6 = html.Div([
 ##############################
 general = html.Div(id='general_description', children=[
     bck_ph,
-    bg,
+    #bg,
     ph1,
     ph2,
     ph3,
