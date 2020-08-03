@@ -23,8 +23,8 @@ from plotly.subplots import make_subplots
 df_all = pd.read_csv('data/df_all_3.csv')
 df_all = df_all.sort_values(by=['code_municip', 'year_cohort'])
 
-var_x_in = 'sa_punt_matematicas'
-var_x_l = 'National Test - Saber Pro Score'
+var_x_in = 'dane_alu_12_p'
+var_x_l = 'Transferred Students [%]'
 var_y_in = 'desertion_perc'
 var_y_l = 'School Desertion Percentage [%]'
 
@@ -278,8 +278,8 @@ def figure_correlation(*args):
             var_x_in = var_x_temp
             var_x_l = label_x_temp
         else:
-            var_x_in = 'sa_punt_matematicas'
-            var_x_l = 'National Test - Saber Pro Score'
+            var_x_in = 'dane_alu_12_p'
+            var_x_l = 'Transferred Students [%]'
 
     elif xy_selection == 'y_selected':
         var_y_temp, label_y_temp, correct = selected_var(values, is_open)
@@ -290,8 +290,8 @@ def figure_correlation(*args):
             var_y_in = 'desertion_perc'
             var_y_l = 'School Desertion Percentage [%]'
     else:
-        var_x_in = 'sa_punt_matematicas'
-        var_x_l = 'National Test - Saber Pro Score'
+        var_x_in = 'dane_alu_12_p'
+        var_x_l = 'Transferred Students [%]'
         var_y_in = 'desertion_perc'
         var_y_l = 'School Desertion Percentage [%]'
 
@@ -445,7 +445,7 @@ def update_output_div(*args):
     values = args[1:10]
     is_open = args[10:]
 
-    years_avail = '2011 - 2012 - 2013 - 2014 - 2015 - 2016 - 2017 - 2018 - 2019'
+    years_avail = '2019'
 
     if selected == 'x_selected':
         for i in range(len(values)):
