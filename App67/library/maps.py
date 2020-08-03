@@ -102,10 +102,11 @@ def build_chart(depto_val,*args):
     
     df_vars = sidebar_maps.df_vars.copy()
     changed_label_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
-      
+
     for i in df_vars['var_id']:
-        if 'mapLabel-' + i in changed_label_id:
+        if 'mapLabel-' + i + ".n_clicks" in changed_label_id:
             selected_var_code = i
+
     selected_var = df_vars.loc[df_vars['var_id'] == str(selected_var_code)]['name'].reset_index()['name'][0]
 
     single_qote = "'"
@@ -147,11 +148,19 @@ def build_chart(depto_val,*args):
         else:
             # 3.2.3.1 Query desired variable
             # ------------------------------
+
+            mylist={'dane_alu_18_p','dane_tic_01','dane_alu_12_p','dane_tic_03_1_p','po_pob_rural_10mil'}
+
+            if selected_var in mylist:
+                selected_var_query = 'desertion_perc'
+            else:
+                selected_var_query = selected_var
+                
             sql_query = 'select code_municip, code_dept, name_municip, dane_alu_18_p, dane_tic_03_1_p, ' + \
-                        'po_pob_rural_10mil, dane_alu_12_p, dane_tic_01, ' + selected_var + ' ' + \
+                        'po_pob_rural_10mil, dane_alu_12_p, dane_tic_01, ' + selected_var_query + ' ' + \
                         'from cluster_master_table_by_municipio ' + \
                         'where code_dept = ' + single_qote + depto_val + single_qote + ';'
-
+            
             df_var_by_dpto = def_data.runQuery(sql_query)
             df_var_by_dpto[selected_var] = df_var_by_dpto[selected_var].astype(np.float64)
             
@@ -186,7 +195,7 @@ def build_chart(depto_val,*args):
             #                                        'dane_tic_01': 'Avg computers x100 stu.',
             #                                        'dane_alu_12_p': '% Transferred students',
             #                                        'dane_tic_03_1_p': '% Schools with electricity',
-            #                                        'po_pob_rural_10mil': '% Habitants (towns-rural)'}, axis=1)
+            #                                       'po_pob_rural_10mil': '% Habitants (towns-rural)'}, axis=1)
                         
             # 3.2.3.4 Define new map
             # ------------------------------
